@@ -235,34 +235,52 @@ if (document.querySelector('#gallery-grid')) {
 
 async function loadGallery() {
   const grid = document.querySelector('#gallery-grid');
+  const tabs = document.querySelector('#gallery-filters');
   try {
     const data = await apiFetch('/api/gallery');
-    if (data.categories?.length) {
-      const tabs = document.querySelector('#gallery-filters');
-      if (tabs) tabs.innerHTML = `<button class="filter-tab active" data-filter="all">All</button>` + data.categories.map(c => `<button class="filter-tab" data-filter="${c}">${c}</button>`).join('');
+
+    if (tabs && data.categories?.length) {
+      tabs.innerHTML = `<button class="filter-tab active" data-filter="all">All</button>` +
+        data.categories.map(c => `<button class="filter-tab" data-filter="${c}">${c}</button>`).join('');
     }
+
     grid.innerHTML = data.items.map(item => `
-      <div class="gallery-item" data-category="${item.category}" data-lightbox data-src="${item.image_url}" data-caption="${item.title || ''}" loading="lazy">
+      <div class="gallery-item" data-category="${item.category}" data-lightbox data-src="${item.image_url}" data-caption="${item.title || ''}">
         <img src="${item.image_url}" alt="${item.title || ''}" loading="lazy" onerror="this.src='/images/gallery-default.jpg'">
         <div class="gallery-overlay"><span class="gallery-overlay-icon">🔍</span></div>
       </div>`).join('');
-    // Re-init lightbox for new elements
-    document.querySelectorAll('[data-lightbox]').forEach(el => {
-      el.addEventListener('click', () => {
-        const lb = document.querySelector('.lightbox');
-        if (lb) { lb.querySelector('img').src = el.dataset.src; lb.querySelector('.lightbox-caption').textContent = el.dataset.caption || ''; lb.classList.add('open'); document.body.style.overflow = 'hidden'; }
-      });
-    });
-    // Re-init filter tabs
-    document.querySelectorAll('.filter-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+
+    // Single delegated filter listener on the tabs container
+    if (tabs) {
+      tabs.addEventListener('click', function(e) {
+        var tab = e.target.closest('.filter-tab');
+        if (!tab) return;
+        tabs.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
         tab.classList.add('active');
-        const filter = tab.dataset.filter;
-        document.querySelectorAll('.gallery-item').forEach(item => { item.style.display = (!filter || filter === 'all' || item.dataset.category === filter) ? '' : 'none'; });
+        var filter = tab.dataset.filter;
+        document.querySelectorAll('.gallery-item').forEach(function(item) {
+          var show = !filter || filter === 'all' || item.dataset.category === filter;
+          item.classList.toggle('gallery-hidden', !show);
+        });
       });
+    }
+
+    // Single delegated lightbox listener on the grid
+    grid.addEventListener('click', function(e) {
+      var item = e.target.closest('[data-lightbox]');
+      if (!item) return;
+      var lb = document.querySelector('.lightbox');
+      if (lb) {
+        lb.querySelector('img').src = item.dataset.src || '';
+        lb.querySelector('.lightbox-caption').textContent = item.dataset.caption || '';
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
     });
-  } catch { grid.innerHTML = '<p style="color:var(--muted);text-align:center">Failed to load gallery.</p>'; }
+
+  } catch(err) {
+    grid.innerHTML = '<p style="color:var(--muted);text-align:center">Failed to load gallery.</p>';
+  }
 }
 
 // ─── Load team ───────────────────────────────────────────────
