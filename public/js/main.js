@@ -16,7 +16,7 @@ if (navToggle && mobileMenu) {
     mobileMenu.classList.toggle('open');
     navToggle.textContent = mobileMenu.classList.contains('open') ? '✕' : '☰';
   });
-  mobileMenu.querySelectorAll('a').forEach(a => {
+  mobileMenu.querySelectorAll('.mobile-nav-links a').forEach(a => {
     a.addEventListener('click', () => { mobileMenu.classList.remove('open'); navToggle.textContent = '☰'; });
   });
 }
