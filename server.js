@@ -82,14 +82,17 @@ app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
-// ─── Start Server ──────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`\n🔮 Project Cipher Lore Server`);
-  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-  console.log(`🌐 Website:    http://localhost:${PORT}`);
-  console.log(`🔧 Admin:      http://localhost:${PORT}/admin`);
-  console.log(`⚙️  ENV:        ${process.env.NODE_ENV || 'development'}`);
-  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+// ─── Start Server (after DB is ready) ─────────────────────────
+const { ready } = require('./database/database');
+ready.then(() => {
+  app.listen(PORT, () => {
+    console.log(`\nProject Cipher Lore Server`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(`Website:    http://localhost:${PORT}`);
+    console.log(`Admin:      http://localhost:${PORT}/admin`);
+    console.log(`ENV:        ${process.env.NODE_ENV || 'development'}`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+  });
 });
 
 process.on('SIGTERM', () => { console.log('SIGTERM received, shutting down'); process.exit(0); });

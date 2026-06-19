@@ -1,14 +1,10 @@
-const bcrypt = require('bcryptjs');
-const db = require('../database/database');
-
-const existing = db.prepare('SELECT id FROM admins').all();
-if (existing.length > 0) {
-  console.log('Admin already exists — skipping creation');
+// Admin is now created automatically by database/database.js on first startup.
+// This script just verifies the setup is working.
+const { ready } = require('../database/database');
+ready.then(() => {
+  console.log('Database initialized — admin account is ready.');
   process.exit(0);
-}
-
-const hash = bcrypt.hashSync('Sp3ctral#K9!xM@72', 12);
-db.prepare("INSERT INTO admins (name, email, password_hash) VALUES (?, ?, ?)")
-  .run("Tanu'sCipherLore", 'admin@cipherlore.com', hash);
-
-console.log('Admin created:', db.prepare('SELECT id, name FROM admins').all());
+}).catch(err => {
+  console.error('Setup failed:', err);
+  process.exit(1);
+});
