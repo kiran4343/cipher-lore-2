@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages — PCL Admin</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo"><div class="sidebar-logo-icon">PCL</div><div><div class="sidebar-logo-text">Admin Panel</div><div class="sidebar-logo-sub">Paranormal Society</div></div></div>
+      <div class="admin-user-chip"><div class="admin-avatar" id="admin-avatar">A</div><div style="min-width:0"><div style="color:var(--text);font-weight:600" id="admin-name">Admin</div><div id="admin-email" style="font-size:0.7rem"></div></div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main</div>
+      <a href="/admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
+      <a href="/admin/analytics.html" class="nav-item"><span class="nav-icon">📈</span>Analytics</a>
+      <div class="nav-section-title">Content</div>
+      <a href="/admin/content.html#posts" class="nav-item"><span class="nav-icon">📝</span>Blog Posts</a>
+      <a href="/admin/content.html#investigations" class="nav-item"><span class="nav-icon">🔍</span>Investigations</a>
+      <a href="/admin/content.html#gallery" class="nav-item"><span class="nav-icon">🖼️</span>Gallery</a>
+      <a href="/admin/content.html#team" class="nav-item"><span class="nav-icon">👥</span>Team</a>
+      <a href="/admin/content.html#events" class="nav-item"><span class="nav-icon">📅</span>Events</a>
+      <div class="nav-section-title">Site</div>
+      <a href="/admin/editor.html" class="nav-item"><span class="nav-icon">🎨</span>Page Editor</a>
+      <a href="/admin/messages.html" class="nav-item active"><span class="nav-icon">✉️</span>Messages</a>
+      <a href="/admin/settings.html" class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank" class="nav-item"><span class="nav-icon">🌐</span>View Website</a>
+      <button onclick="logout()" class="nav-item" style="color:var(--red)"><span class="nav-icon">🚪</span>Logout</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Contact Messages</div>
+      <div class="topbar-actions">
+        <span id="unread-count" style="color:var(--muted);font-size:0.82rem"></span>
+        <button onclick="loadMessages()" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div id="msg-alert"></div>
+      <div style="display:grid;grid-template-columns:320px 1fr;gap:20px;height:calc(100vh - 140px)">
+        <!-- Message List -->
+        <div class="card" style="overflow-y:auto">
+          <div class="card-header"><h3>All Messages</h3></div>
+          <div id="messages-list">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Message Detail -->
+        <div class="card" id="message-detail" style="overflow-y:auto">
+          <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">
+            <div style="text-align:center">
+              <div style="font-size:3rem;margin-bottom:16px">✉️</div>
+              <p>Select a message to view it</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/js/admin.js"></script>
+<script>
+let messages = [];
+
+async function loadMessages() {
+  try {
+    const data = await adminFetch('/api/admin/contacts');
+    messages = data.contacts;
+    const unread = messages.filter(m => !m.is_read).length;
+    document.getElementById('unread-count').textContent = unread > 0 ? `${unread} unread` : 'All read';
+    renderList();
+  } catch (err) { showAlert('msg-alert', err.message, 'error'); }
+}
+
+function renderList() {
+  const list = document.getElementById('messages-list');
+  if (!messages.length) { list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted)">No messages yet</div>'; return; }
+  list.innerHTML = messages.map(m => `
+    <div onclick="viewMessage(${m.id})" style="padding:14px 16px;border-bottom:1px solid var(--border2);cursor:pointer;transition:background 0.15s;${!m.is_read ? 'border-left:3px solid var(--purple)' : ''}" id="msg-row-${m.id}">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <strong style="font-size:0.85rem">${m.name}</strong>
+        <span style="font-size:0.7rem;color:var(--muted)">${new Date(m.created_at).toLocaleDateString('en-IN', {day:'numeric',month:'short'})}</span>
+      </div>
+      <div style="font-size:0.78rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.subject || m.message}</div>
+      ${!m.is_read ? '<span class="badge badge-purple" style="margin-top:4px">New</span>' : ''}
+    </div>`).join('');
+}
+
+async function viewMessage(id) {
+  const m = messages.find(x => x.id === id);
+  if (!m) return;
+
+  document.getElementById('message-detail').innerHTML = `
+    <div style="padding:28px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border2)">
+        <div>
+          <h2 style="font-size:1.1rem;margin-bottom:6px">${m.subject || 'No Subject'}</h2>
+          <div style="display:flex;gap:16px;font-size:0.8rem;color:var(--muted)">
+            <span>From: <strong style="color:var(--text)">${m.name}</strong></span>
+            <span>Email: <a href="mailto:${m.email}" style="color:var(--purple-l)">${m.email}</a></span>
+            ${m.phone ? `<span>Phone: ${m.phone}</span>` : ''}
+          </div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">${new Date(m.created_at).toLocaleString('en-IN')}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="mailto:${m.email}?subject=Re: ${m.subject || 'Your enquiry'}" class="btn btn-primary btn-sm">Reply via Email</a>
+          <button onclick="deleteMessage(${m.id})" class="btn btn-danger btn-sm">Delete</button>
+        </div>
+      </div>
+      <div style="background:var(--bg3);border-radius:8px;padding:20px;line-height:1.8;color:var(--muted);white-space:pre-wrap">${m.message}</div>
+    </div>`;
+
+  if (!m.is_read) {
+    await adminFetch(`/api/admin/contacts/${id}/read`, { method: 'PUT' });
+    m.is_read = 1;
+    renderList();
+    const unread = messages.filter(x => !x.is_read).length;
+    document.getElementById('unread-count').textContent = unread > 0 ? `${unread} unread` : 'All read';
+  }
+}
+
+async function deleteMessage(id) {
+  if (!confirm('Delete this message?')) return;
+  try {
+    await adminFetch(`/api/admin/contacts/${id}`, { method: 'DELETE' });
+    messages = messages.filter(m => m.id !== id);
+    renderList();
+    document.getElementById('message-detail').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)"><div style="text-align:center"><div style="font-size:3rem;margin-bottom:16px">✉️</div><p>Select a message to view it</p></div></div>';
+  } catch (err) { showAlert('msg-alert', err.message, 'error'); }
+}
+
+document.addEventListener('DOMContentLoaded', () => { initAdmin(); loadMessages(); });
+</script>
+</body>
+</html>

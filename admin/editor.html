@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Editor — PCL Admin</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+  <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
+  <style>
+    .editor-wrap { display: flex; flex-direction: column; height: calc(100vh - 60px); }
+    .editor-header { display:flex; align-items:center; gap:12px; padding:12px 20px; background:var(--bg2); border-bottom:1px solid var(--border2); flex-shrink:0; }
+    #gjs { flex: 1; overflow: hidden; }
+    .gjs-pn-commands { background: var(--bg3) !important; border-bottom: 1px solid var(--border2) !important; }
+    .gjs-pn-buttons, .gjs-pn-options, .gjs-pn-views { background: var(--bg3) !important; }
+    .gjs-pn-panel { background: var(--bg3) !important; border-color: var(--border2) !important; }
+    .gjs-cv-canvas { background: #1a1a2e !important; }
+    .gjs-frame-wrapper { padding: 20px !important; }
+    .gjs-editor { background: var(--bg) !important; }
+    .gjs-blocks-c { background: var(--bg2) !important; }
+    .gjs-block { background: var(--bg3) !important; border-color: var(--border2) !important; color: var(--text) !important; }
+    .gjs-sm-sector { background: var(--bg2) !important; border-color: var(--border2) !important; }
+    .gjs-sm-sector__title { background: var(--bg3) !important; color: var(--text) !important; }
+    .gjs-field, .gjs-select { background: var(--bg3) !important; border-color: var(--border2) !important; color: var(--text) !important; }
+    .gjs-trt-trait__label { color: var(--muted) !important; }
+    .gjs-layer { background: var(--bg2) !important; color: var(--text) !important; border-color: var(--border2) !important; }
+    .gjs-layer-title { color: var(--text) !important; }
+    .page-select { background:var(--bg3); border:1px solid var(--border2); color:var(--text); padding:7px 12px; border-radius:7px; font-size:0.85rem; cursor:pointer; }
+  </style>
+</head>
+<body>
+<div style="display:flex;height:100vh;overflow:hidden">
+  <!-- Compact Sidebar -->
+  <aside style="width:48px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px;flex-shrink:0">
+    <a href="/admin/dashboard.html" title="Dashboard" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:var(--bg2);color:var(--muted);font-size:1.1rem;text-decoration:none;margin-bottom:8px">📊</a>
+    <a href="/admin/analytics.html" title="Analytics" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;color:var(--muted);font-size:1.1rem;text-decoration:none">📈</a>
+    <a href="/admin/content.html" title="Content" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;color:var(--muted);font-size:1.1rem;text-decoration:none">📝</a>
+    <a href="/admin/editor.html" title="Editor" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:rgba(124,58,237,0.2);color:var(--purple-l);font-size:1.1rem;text-decoration:none">🎨</a>
+    <a href="/admin/messages.html" title="Messages" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;color:var(--muted);font-size:1.1rem;text-decoration:none">✉️</a>
+    <a href="/admin/settings.html" title="Settings" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;color:var(--muted);font-size:1.1rem;text-decoration:none">⚙️</a>
+    <div style="flex:1"></div>
+    <a href="/" target="_blank" title="View Site" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;color:var(--muted);font-size:1.1rem;text-decoration:none">🌐</a>
+    <button id="editor-logout" title="Logout" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;color:var(--red);font-size:1.1rem;background:none;border:none;cursor:pointer">🚪</button>
+  </aside>
+
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div class="editor-header">
+      <span style="font-weight:600;font-size:0.9rem">Page Editor</span>
+      <span style="color:var(--muted);font-size:0.75rem">—</span>
+      <select class="page-select" id="page-select">
+        <option value="">Select a page to edit...</option>
+        <option value="home">Home</option>
+        <option value="about">About</option>
+        <option value="investigations">Investigations</option>
+        <option value="gallery">Gallery</option>
+        <option value="blog">Blog</option>
+        <option value="team">Team</option>
+        <option value="events">Events</option>
+        <option value="contact">Contact</option>
+      </select>
+      <div style="flex:1"></div>
+      <div id="save-status" style="font-size:0.78rem;color:var(--muted)"></div>
+      <button id="btn-preview" class="btn btn-secondary btn-sm">👁 Preview</button>
+      <button id="btn-save" class="btn btn-primary btn-sm">💾 Save</button>
+      <button id="btn-clear" class="btn btn-secondary btn-sm">🗑 Clear</button>
+    </div>
+    <div id="gjs"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/grapesjs"></script>
+<script src="/admin/js/admin.js"></script>
+<script>
+let editor, currentPage = null;
+
+const defaultHtml = `
+<section style="padding:80px 40px;text-align:center;background:#050510;color:#e2e8f0;min-height:100vh;font-family:Inter,sans-serif">
+  <h1 style="font-size:2.5rem;margin-bottom:20px;color:#a855f7">Edit This Page</h1>
+  <p style="color:#94a3b8;max-width:600px;margin:0 auto 32px">Drag and drop blocks from the right panel to build your page. Click any element to edit it.</p>
+  <a href="#" style="display:inline-block;background:#7c3aed;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600">Call to Action</a>
+</section>`;
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAdmin();
+
+  document.getElementById('editor-logout').addEventListener('click', logout);
+  document.getElementById('page-select').addEventListener('change', function() { loadPage(this.value); });
+  document.getElementById('btn-preview').addEventListener('click', previewPage);
+  document.getElementById('btn-save').addEventListener('click', savePage);
+  document.getElementById('btn-clear').addEventListener('click', clearEditor);
+
+  editor = grapesjs.init({
+    container: '#gjs',
+    height: '100%',
+    fromElement: false,
+    storageManager: false,
+    noticeOnUnload: false,
+    styleManager: {
+      sectors: [
+        { name: 'General', open: false, buildProps: ['display', 'float', 'position', 'top', 'right', 'left', 'bottom'] },
+        { name: 'Dimension', open: false, buildProps: ['width', 'height', 'max-width', 'min-height', 'margin', 'padding'] },
+        { name: 'Typography', open: true, buildProps: ['font-family', 'font-size', 'font-weight', 'letter-spacing', 'color', 'line-height', 'text-align', 'text-decoration'] },
+        { name: 'Background', open: false, buildProps: ['background-color', 'background'] },
+        { name: 'Border', open: false, buildProps: ['border', 'border-radius'] },
+        { name: 'Extra', open: false, buildProps: ['opacity', 'box-shadow', 'cursor'] },
+      ]
+    },
+    blockManager: {
+      blocks: [
+        { id: 'hero', label: '🦸 Hero', category: 'Layout', content: { type: 'text', content: '<section style="padding:100px 40px;text-align:center;background:linear-gradient(135deg,#0d0d2b,#050510);color:#e2e8f0;min-height:80vh;display:flex;align-items:center;justify-content:center"><div><h1 style="font-size:3rem;margin-bottom:20px;font-family:Georgia,serif;background:linear-gradient(135deg,#fff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Your Headline Here</h1><p style="color:#94a3b8;max-width:600px;margin:0 auto 32px;font-size:1.1rem">Compelling subtitle that explains your value proposition</p><a href="#" style="display:inline-block;background:#7c3aed;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin-right:12px">Primary Action</a><a href="#" style="display:inline-block;border:1px solid rgba(124,58,237,0.4);color:#e2e8f0;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600">Learn More</a></div></section>' } },
+        { id: 'section', label: '📦 Section', category: 'Layout', content: '<section style="padding:80px 40px;background:#0d0d2b;color:#e2e8f0"><div style="max-width:1100px;margin:0 auto"><h2 style="text-align:center;margin-bottom:40px;font-family:Georgia,serif">Section Title</h2><p style="color:#94a3b8;text-align:center;max-width:600px;margin:0 auto">Section description goes here.</p></div></section>' },
+        { id: 'two-col', label: '⬛⬛ 2 Columns', category: 'Layout', content: '<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;padding:40px;background:#0d0d2b"><div style="padding:24px;background:#111130;border-radius:12px;border:1px solid rgba(124,58,237,0.2)"><h3 style="color:#e2e8f0;margin-bottom:12px">Column 1</h3><p style="color:#94a3b8">Content here</p></div><div style="padding:24px;background:#111130;border-radius:12px;border:1px solid rgba(124,58,237,0.2)"><h3 style="color:#e2e8f0;margin-bottom:12px">Column 2</h3><p style="color:#94a3b8">Content here</p></div></div>' },
+        { id: 'three-col', label: '⬛⬛⬛ 3 Columns', category: 'Layout', content: '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;padding:40px;background:#0d0d2b"><div style="padding:24px;background:#111130;border-radius:12px;text-align:center;border:1px solid rgba(124,58,237,0.2)"><div style="font-size:2rem;margin-bottom:12px">🔮</div><h3 style="color:#e2e8f0;margin-bottom:8px">Title</h3><p style="color:#94a3b8;font-size:0.9rem">Description</p></div><div style="padding:24px;background:#111130;border-radius:12px;text-align:center;border:1px solid rgba(124,58,237,0.2)"><div style="font-size:2rem;margin-bottom:12px">👻</div><h3 style="color:#e2e8f0;margin-bottom:8px">Title</h3><p style="color:#94a3b8;font-size:0.9rem">Description</p></div><div style="padding:24px;background:#111130;border-radius:12px;text-align:center;border:1px solid rgba(124,58,237,0.2)"><div style="font-size:2rem;margin-bottom:12px">⚡</div><h3 style="color:#e2e8f0;margin-bottom:8px">Title</h3><p style="color:#94a3b8;font-size:0.9rem">Description</p></div></div>' },
+        { id: 'text-block', label: '📄 Text Block', category: 'Basic', content: '<div style="padding:40px;background:#0d0d2b;color:#e2e8f0"><h2 style="margin-bottom:16px;font-family:Georgia,serif">Heading</h2><p style="color:#94a3b8;line-height:1.8;margin-bottom:16px">Your paragraph text goes here. Click to edit this text and make it say whatever you need.</p><p style="color:#94a3b8;line-height:1.8">Second paragraph with more details about your topic.</p></div>' },
+        { id: 'image-text', label: '🖼️ Image + Text', category: 'Basic', content: '<div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:80px 40px;background:#0d0d2b;align-items:center"><img src="/images/about-hero.jpg" alt="Image" style="width:100%;border-radius:12px;height:320px;object-fit:cover"><div><h2 style="color:#e2e8f0;font-family:Georgia,serif;margin-bottom:16px">Image with Text</h2><p style="color:#94a3b8;line-height:1.8;margin-bottom:24px">Describe what\'s in the image or provide context for this section of your page.</p><a href="#" style="display:inline-block;background:#7c3aed;color:white;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600">Learn More</a></div></div>' },
+        { id: 'cta-block', label: '📣 Call to Action', category: 'Basic', content: '<section style="padding:80px 40px;text-align:center;background:radial-gradient(ellipse at center,rgba(76,29,149,0.3) 0%,transparent 70%),#050510;color:#e2e8f0"><h2 style="font-family:Georgia,serif;font-size:2rem;margin-bottom:16px">Ready to Take Action?</h2><p style="color:#94a3b8;max-width:500px;margin:0 auto 32px">Compelling reason why they should click the button below.</p><a href="/contact" style="display:inline-block;background:#7c3aed;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600">Get in Touch</a></section>' },
+        { id: 'stats-row', label: '📊 Stats Row', category: 'Components', content: '<div style="background:#0d0d2b;border-top:1px solid rgba(124,58,237,0.25);border-bottom:1px solid rgba(124,58,237,0.25);padding:40px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;max-width:900px;margin:0 auto;text-align:center"><div><div style="font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">500+</div><div style="font-size:0.8rem;color:#94a3b8;text-transform:uppercase;letter-spacing:2px;margin-top:4px">Cases</div></div><div><div style="font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">120+</div><div style="font-size:0.8rem;color:#94a3b8;text-transform:uppercase;letter-spacing:2px;margin-top:4px">Members</div></div><div><div style="font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">28</div><div style="font-size:0.8rem;color:#94a3b8;text-transform:uppercase;letter-spacing:2px;margin-top:4px">States</div></div><div><div style="font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">16+</div><div style="font-size:0.8rem;color:#94a3b8;text-transform:uppercase;letter-spacing:2px;margin-top:4px">Years</div></div></div></div>' },
+        { id: 'testimonial', label: '💬 Testimonial', category: 'Components', content: '<div style="background:#111130;border:1px solid rgba(124,58,237,0.2);border-radius:12px;padding:32px;margin:20px;color:#e2e8f0"><div style="font-size:3rem;color:#7c3aed;line-height:1;margin-bottom:12px">"</div><p style="color:#94a3b8;font-style:italic;margin-bottom:20px">This is a testimonial. Replace with real customer feedback to build trust and credibility.</p><div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">J</div><div><div style="font-weight:600">John Doe</div><div style="font-size:0.8rem;color:#94a3b8">Location, State</div></div></div></div>' },
+        { id: 'divider', label: '— Divider', category: 'Basic', content: '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:0">' },
+        { id: 'spacer', label: '⬜ Spacer', category: 'Basic', content: '<div style="height:60px"></div>' },
+      ]
+    },
+    canvas: {
+      styles: [
+        'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap',
+        '/css/style.css',
+      ],
+      scripts: ['/js/main.js'],
+    }
+  });
+
+  editor.setComponents(defaultHtml);
+});
+
+async function loadPage(slug) {
+  if (!slug) return;
+  currentPage = slug;
+  const statusEl = document.getElementById('save-status');
+  statusEl.textContent = 'Loading...';
+  try {
+    const res = await fetch(`/api/admin/pages/${slug}`, { credentials: 'same-origin' });
+    if (res.status === 404) {
+      // Page doesn't exist yet — open with default content; Save will create it
+      editor.setComponents(defaultHtml);
+      editor.setStyle('');
+      statusEl.textContent = `New page: ${slug} (unsaved)`;
+      return;
+    }
+    if (res.status === 401) { window.location.href = '/admin/login.html'; return; }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const content = data.page && data.page.content;
+    if (content && content !== '{}' && content !== JSON.stringify({ sections: [] })) {
+      try {
+        const parsed = JSON.parse(content);
+        if (parsed.html) { editor.setComponents(parsed.html); if (parsed.css) editor.setStyle(parsed.css); }
+        else editor.setComponents(content);
+      } catch { editor.setComponents(content); }
+    } else {
+      editor.setComponents(defaultHtml);
+    }
+    statusEl.textContent = `Editing: ${slug}`;
+  } catch (err) {
+    statusEl.textContent = 'Load failed: ' + err.message;
+  }
+}
+
+async function savePage() {
+  if (!currentPage) { alert('Please select a page to edit first.'); return; }
+  const btn = document.getElementById('btn-save');
+  btn.textContent = '⏳ Saving...'; btn.disabled = true;
+  try {
+    const content = JSON.stringify({ html: editor.getHtml(), css: editor.getCss() });
+    await adminFetch(`/api/admin/pages/${currentPage}`, { method: 'PUT', body: JSON.stringify({ content }) });
+    document.getElementById('save-status').textContent = '✓ Saved at ' + new Date().toLocaleTimeString();
+    btn.textContent = '💾 Save';
+  } catch (err) {
+    alert('Save failed: ' + err.message);
+    btn.textContent = '💾 Save';
+  }
+  btn.disabled = false;
+}
+
+function clearEditor() {
+  if (confirm('Clear the editor? Unsaved changes will be lost.')) {
+    editor.setComponents(defaultHtml);
+    editor.setStyle('');
+  }
+}
+
+function previewPage() {
+  if (!currentPage) { alert('Save the page first to preview it.'); return; }
+  window.open('/' + (currentPage === 'home' ? '' : currentPage), '_blank');
+}
+</script>
+</body>
+</html>

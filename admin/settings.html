@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — PCL Admin</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo"><div class="sidebar-logo-icon">PCL</div><div><div class="sidebar-logo-text">Admin Panel</div><div class="sidebar-logo-sub">Paranormal Society</div></div></div>
+      <div class="admin-user-chip"><div class="admin-avatar" id="admin-avatar">A</div><div style="min-width:0"><div style="color:var(--text);font-weight:600" id="admin-name">Admin</div><div id="admin-email" style="font-size:0.7rem"></div></div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main</div>
+      <a href="/admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
+      <a href="/admin/analytics.html" class="nav-item"><span class="nav-icon">📈</span>Analytics</a>
+      <div class="nav-section-title">Content</div>
+      <a href="/admin/content.html#posts" class="nav-item"><span class="nav-icon">📝</span>Blog Posts</a>
+      <a href="/admin/content.html#investigations" class="nav-item"><span class="nav-icon">🔍</span>Investigations</a>
+      <a href="/admin/content.html#gallery" class="nav-item"><span class="nav-icon">🖼️</span>Gallery</a>
+      <a href="/admin/content.html#team" class="nav-item"><span class="nav-icon">👥</span>Team</a>
+      <a href="/admin/content.html#events" class="nav-item"><span class="nav-icon">📅</span>Events</a>
+      <div class="nav-section-title">Site</div>
+      <a href="/admin/editor.html" class="nav-item"><span class="nav-icon">🎨</span>Page Editor</a>
+      <a href="/admin/messages.html" class="nav-item"><span class="nav-icon">✉️</span>Messages</a>
+      <a href="/admin/settings.html" class="nav-item active"><span class="nav-icon">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank" class="nav-item"><span class="nav-icon">🌐</span>View Website</a>
+      <button onclick="logout()" class="nav-item" style="color:var(--red)"><span class="nav-icon">🚪</span>Logout</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Settings</div>
+      <div class="topbar-actions">
+        <button onclick="saveSettings()" class="btn btn-primary btn-sm">💾 Save All Settings</button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div id="settings-alert"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <!-- Site Info -->
+        <div class="card">
+          <div class="card-header"><h3>🌐 Site Information</h3></div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Site Name</label><input class="form-control" id="s-site_name" placeholder="Project Cipher Lore"></div>
+            <div class="form-group"><label class="form-label">Tagline</label><input class="form-control" id="s-site_tagline" placeholder="Exploring the Unexplained"></div>
+            <div class="form-group"><label class="form-label">Contact Email</label><input class="form-control" type="email" id="s-site_email" placeholder="contact@site.com"></div>
+            <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="s-site_phone" placeholder="+91 99999 99999"></div>
+            <div class="form-group"><label class="form-label">Address</label><input class="form-control" id="s-site_address" placeholder="New Delhi, India"></div>
+            <div class="form-group"><label class="form-label">Footer Text</label><input class="form-control" id="s-footer_text" placeholder="© 2024 Project Cipher Lore"></div>
+          </div>
+        </div>
+
+        <!-- Social Media -->
+        <div class="card">
+          <div class="card-header"><h3>📱 Social Media</h3></div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Facebook URL</label><input class="form-control" id="s-facebook_url" placeholder="https://facebook.com/..."></div>
+            <div class="form-group"><label class="form-label">Twitter / X URL</label><input class="form-control" id="s-twitter_url" placeholder="https://twitter.com/..."></div>
+            <div class="form-group"><label class="form-label">Instagram URL</label><input class="form-control" id="s-instagram_url" placeholder="https://instagram.com/..."></div>
+            <div class="form-group"><label class="form-label">YouTube URL</label><input class="form-control" id="s-youtube_url" placeholder="https://youtube.com/..."></div>
+          </div>
+        </div>
+
+        <!-- Homepage Content -->
+        <div class="card">
+          <div class="card-header"><h3>🏠 Homepage Content</h3></div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Hero Title</label><input class="form-control" id="s-hero_title" placeholder="Exploring India's Unexplained Mysteries"></div>
+            <div class="form-group"><label class="form-label">Hero Subtitle</label><textarea class="form-control" id="s-hero_subtitle" rows="3" placeholder="India's premier paranormal research organization..."></textarea></div>
+            <div class="form-group"><label class="form-label">About Text</label><textarea class="form-control" id="s-about_text" rows="4" placeholder="About the organization..."></textarea></div>
+          </div>
+        </div>
+
+        <!-- Stats Counters -->
+        <div class="card">
+          <div class="card-header"><h3>📊 Stats Display</h3></div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Cases Investigated</label><input class="form-control" id="s-cases_count" placeholder="500+"></div>
+            <div class="form-group"><label class="form-label">Active Members</label><input class="form-control" id="s-members_count" placeholder="120+"></div>
+            <div class="form-group"><label class="form-label">States Covered</label><input class="form-control" id="s-states_count" placeholder="28"></div>
+            <div class="form-group"><label class="form-label">Years Active</label><input class="form-control" id="s-years_count" placeholder="16+"></div>
+          </div>
+        </div>
+
+        <!-- Security -->
+        <div class="card">
+          <div class="card-header"><h3>🔒 Security</h3></div>
+          <div class="card-body">
+            <div class="alert alert-info" style="margin-bottom:16px">Change your admin password regularly. Use at least 10 characters with mixed case, numbers, and symbols.</div>
+            <div class="form-group"><label class="form-label">Current Password</label><input class="form-control" type="password" id="cur-pw" autocomplete="current-password"></div>
+            <div class="form-group"><label class="form-label">New Password</label><input class="form-control" type="password" id="new-pw" autocomplete="new-password"></div>
+            <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-control" type="password" id="conf-pw" autocomplete="new-password"></div>
+            <button onclick="changePassword()" class="btn btn-primary">Change Password</button>
+          </div>
+        </div>
+
+        <!-- Admin Accounts -->
+        <div class="card">
+          <div class="card-header"><h3>👤 Admin Accounts</h3></div>
+          <div class="card-body">
+            <div class="alert alert-warn" style="margin-bottom:16px">Maximum 2 admin accounts allowed. To add a second admin, use the setup page with the ADMIN_SETUP_KEY from your .env file.</div>
+            <div id="admins-list"><div class="loading"><div class="spinner"></div></div></div>
+            <div style="margin-top:16px">
+              <a href="/admin/login.html" target="_blank" class="btn btn-secondary btn-sm">+ Add Second Admin</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/js/admin.js"></script>
+<script>
+async function loadSettings() {
+  try {
+    const data = await adminFetch('/api/admin/settings');
+    Object.entries(data.settings).forEach(([k, v]) => {
+      const el = document.getElementById('s-' + k);
+      if (el) el.value = v || '';
+    });
+  } catch (err) { showAlert('settings-alert', 'Failed to load settings: ' + err.message, 'error'); }
+}
+
+async function saveSettings() {
+  const keys = ['site_name','site_tagline','site_email','site_phone','site_address','footer_text','facebook_url','twitter_url','instagram_url','youtube_url','hero_title','hero_subtitle','about_text','cases_count','members_count','states_count','years_count'];
+  const body = {};
+  keys.forEach(k => { const el = document.getElementById('s-' + k); if (el) body[k] = el.value; });
+  try {
+    await adminFetch('/api/admin/settings', { method: 'PUT', body: JSON.stringify(body) });
+    showAlert('settings-alert', '✓ Settings saved successfully', 'success');
+  } catch (err) { showAlert('settings-alert', 'Save failed: ' + err.message, 'error'); }
+}
+
+async function changePassword() {
+  const cur = document.getElementById('cur-pw').value;
+  const nw = document.getElementById('new-pw').value;
+  const conf = document.getElementById('conf-pw').value;
+  if (!cur || !nw) return showAlert('settings-alert', 'Please fill in all password fields', 'error');
+  if (nw !== conf) return showAlert('settings-alert', 'New passwords do not match', 'error');
+  if (nw.length < 10) return showAlert('settings-alert', 'New password must be at least 10 characters', 'error');
+  try {
+    await adminFetch('/api/auth/change-password', { method: 'POST', body: JSON.stringify({ currentPassword: cur, newPassword: nw }) });
+    showAlert('settings-alert', '✓ Password changed successfully', 'success');
+    ['cur-pw','new-pw','conf-pw'].forEach(id => document.getElementById(id).value = '');
+  } catch (err) { showAlert('settings-alert', 'Password change failed: ' + err.message, 'error'); }
+}
+
+async function loadAdmins() {
+  try {
+    const data = await adminFetch('/api/admin/admins');
+    document.getElementById('admins-list').innerHTML = data.admins.map(a => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border2)">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;color:white;font-weight:700">${a.name[0]}</div>
+        <div style="flex:1"><div style="font-weight:600;font-size:0.85rem">${a.name}</div><div style="font-size:0.75rem;color:var(--muted)">${a.email}</div></div>
+        <div>${a.is_active ? '<span class="badge badge-published">Active</span>' : '<span class="badge badge-draft">Inactive</span>'}</div>
+        <button onclick="toggleAdmin(${a.id})" class="btn btn-secondary btn-sm">${a.is_active ? 'Deactivate' : 'Activate'}</button>
+      </div>`).join('');
+  } catch {}
+}
+
+async function toggleAdmin(id) {
+  if (!confirm('Toggle this admin account status?')) return;
+  try {
+    await adminFetch(`/api/admin/admins/${id}/toggle`, { method: 'PUT' });
+    loadAdmins();
+  } catch (err) { showAlert('settings-alert', err.message, 'error'); }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAdmin();
+  loadSettings();
+  loadAdmins();
+});
+</script>
+</body>
+</html>

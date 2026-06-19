@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investigation — Project Cipher Lore</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><a href="/" style="display:flex;align-items:center;gap:12px;text-decoration:none"><div class="nav-logo">PCL</div><div class="nav-name">Project Cipher Lore <span>Paranormal Research</span></div></a></div>
+  <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/investigations" class="active">Investigations</a></li><li><a href="/gallery">Gallery</a></li><li><a href="/blog">Blog</a></li><li><a href="/team">Team</a></li><li><a href="/events">Events</a></li><li><a href="/contact" class="nav-cta">Contact Us</a></li></ul>
+  <button class="nav-toggle">☰</button>
+</nav>
+<div class="mobile-menu"><ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/investigations">Investigations</a></li><li><a href="/gallery">Gallery</a></li><li><a href="/blog">Blog</a></li><li><a href="/team">Team</a></li><li><a href="/events">Events</a></li><li><a href="/contact">Contact</a></li></ul></div>
+
+<main style="padding-top:80px">
+  <div id="inv-content">
+    <div class="loading" style="padding:100px 0"><div class="spinner"></div></div>
+  </div>
+</main>
+
+<footer style="margin-top:80px">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="footer-logo"><div class="nav-logo">PCL</div><div class="nav-name">Project Cipher Lore <span>Paranormal Research</span></div></div><p class="footer-about">India's premier paranormal research organization since 2008.</p></div>
+    <div><h4 class="footer-heading">Navigation</h4><ul class="footer-links"><li><a href="/">Home</a></li><li><a href="/investigations">Investigations</a></li><li><a href="/blog">Blog</a></li><li><a href="/contact">Contact</a></li></ul></div>
+    <div><h4 class="footer-heading">Resources</h4><ul class="footer-links"><li><a href="/events">Events</a></li><li><a href="/team">Team</a></li></ul></div>
+    <div class="footer-contact"><h4 class="footer-heading">Contact</h4><p>📧 <span data-setting="site_email">contact@projectcipherlore.com</span></p></div>
+  </div>
+  <div class="footer-bottom"><p data-setting="footer_text">© 2024 Project Cipher Lore. All rights reserved.</p></div>
+</footer>
+
+<div class="lightbox"><button class="lightbox-close">✕</button><img src="" alt="Gallery"><div class="lightbox-caption"></div></div>
+
+<script src="/js/tracker.js" defer></script>
+<script src="/js/main.js" defer></script>
+<script>
+async function loadInvestigation() {
+  const slug = window.location.pathname.split('/').pop();
+  const container = document.getElementById('inv-content');
+  try {
+    const data = await PCL.apiFetch('/api/investigations/' + slug);
+    const inv = data.investigation;
+    document.title = inv.title + ' — PCL';
+    const imgs = PCL.safeJson(inv.images, []);
+    const evidence = PCL.safeJson(inv.evidence_types, []);
+    container.innerHTML = `
+      <section class="page-hero">
+        <div class="inv-status status-${inv.status}" style="margin-bottom:12px">● ${inv.status}</div>
+        <h1>${inv.title}</h1>
+        <p>${inv.description || ''}</p>
+        <div class="breadcrumb"><a href="/">Home</a><span>›</span><a href="/investigations">Investigations</a><span>›</span><span>${inv.title}</span></div>
+      </section>
+      <div style="padding:60px 5%;max-width:1200px;margin:0 auto">
+        <div class="inv-detail-header">
+          ${imgs.length ? `<img class="inv-detail-img" src="${imgs[0]}" alt="${inv.title}" onerror="this.style.display='none'">` : `<div style="background:var(--bg2);border-radius:var(--radius);height:400px;display:flex;align-items:center;justify-content:center;font-size:4rem">🔍</div>`}
+          <div>
+            <h2 style="margin-bottom:20px">Investigation Details</h2>
+            <ul class="inv-meta-list">
+              <li><span class="meta-label">📍 Location</span><span>${inv.location || '—'}${inv.state ? ', ' + inv.state : ''}</span></li>
+              <li><span class="meta-label">📅 Date</span><span>${inv.date ? PCL.formatDate(inv.date) : '—'}</span></li>
+              <li><span class="meta-label">📊 Status</span><span class="inv-status status-${inv.status}" style="font-size:0.75rem">● ${inv.status}</span></li>
+              <li><span class="meta-label">🔬 Evidence</span><div class="evidence-tags">${evidence.map(e => `<span class="badge badge-purple">${e}</span>`).join('')}</div></li>
+            </ul>
+          </div>
+        </div>
+        ${inv.full_report ? `<div class="card" style="padding:40px;margin-bottom:40px"><h2 style="margin-bottom:24px">Full Investigation Report</h2><div class="post-content" style="max-width:none">${inv.full_report.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}</div></div>` : ''}
+        ${imgs.length > 1 ? `<h2 style="margin-bottom:24px">Investigation Photos</h2><div class="gallery-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:60px">${imgs.map(src => `<div class="gallery-item" data-lightbox data-src="${src}"><img src="${src}" alt="Investigation photo" loading="lazy" onerror="this.src='/images/inv-default.jpg'"><div class="gallery-overlay"><span class="gallery-overlay-icon">🔍</span></div></div>`).join('')}</div>` : ''}
+        <div style="text-align:center;margin-top:40px;padding-top:40px;border-top:1px solid var(--border2)">
+          <a href="/investigations" class="btn btn-outline">← All Investigations</a>
+          <a href="/contact" class="btn btn-primary" style="margin-left:12px">Report Similar Experience</a>
+        </div>
+      </div>`;
+    // Re-init lightbox for dynamically added elements
+    document.querySelectorAll('[data-lightbox]').forEach(el => {
+      el.addEventListener('click', () => {
+        const lb = document.querySelector('.lightbox');
+        lb.querySelector('img').src = el.dataset.src;
+        lb.querySelector('.lightbox-caption').textContent = '';
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    document.querySelector('.lightbox-close')?.addEventListener('click', () => {
+      document.querySelector('.lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  } catch { container.innerHTML = '<div class="error-page"><div><div class="error-code" style="font-size:4rem">404</div><h2>Investigation not found</h2><a href="/investigations" class="btn btn-primary" style="margin-top:20px">View All Investigations</a></div></div>'; }
+}
+document.addEventListener('DOMContentLoaded', loadInvestigation);
+</script>
+</body>
+</html>

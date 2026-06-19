@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — PCL Admin</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">PCL</div>
+        <div><div class="sidebar-logo-text">Admin Panel</div><div class="sidebar-logo-sub">Paranormal Society</div></div>
+      </div>
+      <div class="admin-user-chip">
+        <div class="admin-avatar" id="admin-avatar">A</div>
+        <div style="min-width:0"><div style="color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="admin-name">Admin</div><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="admin-email">admin@ips.in</div></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main</div>
+      <a href="/admin/dashboard.html" class="nav-item active"><span class="nav-icon">📊</span>Dashboard</a>
+      <a href="/admin/analytics.html" class="nav-item"><span class="nav-icon">📈</span>Analytics</a>
+      <div class="nav-section-title">Content</div>
+      <a href="/admin/content.html#posts" class="nav-item"><span class="nav-icon">📝</span>Blog Posts</a>
+      <a href="/admin/content.html#investigations" class="nav-item"><span class="nav-icon">🔍</span>Investigations</a>
+      <a href="/admin/content.html#gallery" class="nav-item"><span class="nav-icon">🖼️</span>Gallery</a>
+      <a href="/admin/content.html#team" class="nav-item"><span class="nav-icon">👥</span>Team</a>
+      <a href="/admin/content.html#events" class="nav-item"><span class="nav-icon">📅</span>Events</a>
+      <div class="nav-section-title">Site</div>
+      <a href="/admin/editor.html" class="nav-item"><span class="nav-icon">🎨</span>Page Editor</a>
+      <a href="/admin/messages.html" class="nav-item"><span class="nav-icon">✉️</span>Messages<span class="nav-badge" id="unread-badge" style="display:none">0</span></a>
+      <a href="/admin/settings.html" class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank" class="nav-item"><span class="nav-icon">🌐</span>View Website</a>
+      <button onclick="logout()" class="nav-item" style="color:var(--red)"><span class="nav-icon">🚪</span>Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-actions">
+        <span style="color:var(--muted);font-size:0.78rem"><span class="realtime-dot"></span>Live</span>
+        <a href="/admin/content.html#posts" class="btn btn-primary btn-sm">+ New Post</a>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <!-- Stat Cards -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-card-info"><h4>Today's Visitors</h4><div class="stat-card-value" id="stat-today">—</div><div class="stat-card-change up" id="stat-week">This week: —</div></div><div class="stat-card-icon icon-purple">👥</div></div>
+        <div class="stat-card"><div class="stat-card-info"><h4>Total Page Views</h4><div class="stat-card-value" id="stat-views">—</div><div class="stat-card-change" id="stat-views-today">Today: —</div></div><div class="stat-card-icon icon-blue">👁️</div></div>
+        <div class="stat-card"><div class="stat-card-info"><h4>Published Posts</h4><div class="stat-card-value" id="stat-posts">—</div><div class="stat-card-change" id="stat-drafts">Drafts: —</div></div><div class="stat-card-icon icon-green">📝</div></div>
+        <div class="stat-card"><div class="stat-card-info"><h4>Unread Messages</h4><div class="stat-card-value" id="stat-messages">—</div><div class="stat-card-change" id="stat-total-msg">Total: —</div></div><div class="stat-card-icon icon-gold">✉️</div></div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-grid" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-header"><h3>Visitor Trend (7 days)</h3></div>
+          <div class="card-body"><div class="chart-container"><canvas id="visitorChart"></canvas></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Top Pages</h3></div>
+          <div class="card-body" id="top-pages-list" style="padding:0"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- Recent Visitors + More Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card">
+          <div class="card-header"><h3>Recent Visitors</h3><a href="/admin/analytics.html" class="btn btn-secondary btn-sm">View All</a></div>
+          <div class="card-body" style="padding:0" id="recent-visitors"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Quick Stats</h3></div>
+          <div class="card-body" id="quick-stats">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div style="background:var(--bg3);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--purple-l)" id="qs-investigations">—</div><div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Investigations</div></div>
+              <div style="background:var(--bg3);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--emerald)" id="qs-events">—</div><div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Events</div></div>
+              <div style="background:var(--bg3);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--gold)" id="qs-total-visitors">—</div><div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Total Visitors</div></div>
+              <div style="background:var(--bg3);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--blue)" id="qs-month">—</div><div style="font-size:0.75rem;color:var(--muted);margin-top:4px">This Month</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/js/admin.js"></script>
+<script>
+let visitorChart;
+
+async function loadDashboard() {
+  try {
+    const data = await adminFetch('/api/admin/dashboard');
+    const s = data.stats;
+
+    // Stat cards
+    document.getElementById('stat-today').textContent = s.todayVisitors.toLocaleString();
+    document.getElementById('stat-week').textContent = `This week: ${s.weekVisitors.toLocaleString()}`;
+    document.getElementById('stat-views').textContent = s.totalPageViews.toLocaleString();
+    document.getElementById('stat-views-today').textContent = `Today: ${s.todayPageViews.toLocaleString()}`;
+    document.getElementById('stat-posts').textContent = s.totalPosts;
+    document.getElementById('stat-drafts').textContent = `Drafts: ${s.draftPosts}`;
+    document.getElementById('stat-messages').textContent = s.unreadMessages;
+    document.getElementById('stat-total-msg').textContent = `Total: ${s.totalMessages}`;
+
+    // Unread badge
+    if (s.unreadMessages > 0) {
+      const badge = document.getElementById('unread-badge');
+      badge.textContent = s.unreadMessages;
+      badge.style.display = 'inline-block';
+    }
+
+    // Quick stats
+    document.getElementById('qs-investigations').textContent = s.totalInvestigations;
+    document.getElementById('qs-events').textContent = s.totalEvents;
+    document.getElementById('qs-total-visitors').textContent = s.totalVisitors.toLocaleString();
+    document.getElementById('qs-month').textContent = s.monthVisitors.toLocaleString();
+
+    // Visitor chart
+    const ctx = document.getElementById('visitorChart').getContext('2d');
+    const labels = data.dailyVisitors.map(d => new Date(d.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' }));
+    const values = data.dailyVisitors.map(d => d.count);
+
+    visitorChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels, datasets: [{
+          label: 'Visitors',
+          data: values,
+          borderColor: '#7c3aed',
+          backgroundColor: 'rgba(124,58,237,0.1)',
+          borderWidth: 2, fill: true, tension: 0.4,
+          pointBackgroundColor: '#7c3aed', pointRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8', font: { size: 11 } }, beginAtZero: true },
+        }
+      }
+    });
+
+    // Top pages
+    const pagesHtml = data.topPages.slice(0, 8).map((p, i) => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border2)">
+        <span style="color:var(--muted);font-size:0.75rem;min-width:16px">${i + 1}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.82rem">${p.page}</span>
+        <span style="color:var(--purple-l);font-weight:600;font-size:0.82rem">${p.views}</span>
+      </div>`).join('');
+    document.getElementById('top-pages-list').innerHTML = pagesHtml || '<div style="padding:20px;color:var(--muted);text-align:center">No data yet</div>';
+
+    // Recent visitors
+    const visitorsHtml = data.recentVisitors.map(v => `
+      <div class="visitor-row" style="padding:10px 20px">
+        <div class="country-flag">${getFlagEmoji(v.country)}</div>
+        <div class="visitor-info">
+          <div style="font-size:0.82rem">${v.city || 'Unknown'}, ${v.country || 'Unknown'}</div>
+          <div class="visitor-page">${v.first_page || '/'}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:0.75rem;color:var(--muted)">${v.device_type || 'desktop'}</div>
+          <div class="visitor-time">${timeAgo(v.created_at)}</div>
+        </div>
+      </div>`).join('');
+    document.getElementById('recent-visitors').innerHTML = visitorsHtml || '<div style="padding:20px;color:var(--muted);text-align:center">No recent visitors</div>';
+
+  } catch (err) {
+    console.error('Dashboard load error:', err);
+  }
+}
+
+function getFlagEmoji(country) {
+  const flags = { 'India': '🇮🇳', 'India (Local)': '🖥️', 'United States': '🇺🇸', 'United Kingdom': '🇬🇧', 'Canada': '🇨🇦', 'Australia': '🇦🇺', 'Germany': '🇩🇪', 'France': '🇫🇷', 'Japan': '🇯🇵', 'China': '🇨🇳', 'Unknown': '🌍' };
+  return flags[country] || '🌍';
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAdmin();
+  loadDashboard();
+  setInterval(loadDashboard, 60000);
+});
+</script>
+</body>
+</html>

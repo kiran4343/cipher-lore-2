@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Project Cipher Lore</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+
+    <div class="login-logo">
+      <div class="login-logo-icon">PCL</div>
+      <h2>Admin Panel</h2>
+      <p>Project Cipher Lore</p>
+    </div>
+
+    <div id="login-msg"></div>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input class="form-control" type="text" name="username" placeholder="Enter your username" autocomplete="username" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-control" type="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" id="login-btn" class="btn btn-primary" style="width:100%;margin-top:4px">Sign In</button>
+    </form>
+
+    <div style="margin-top:24px;text-align:center">
+      <a href="/" style="color:var(--muted);font-size:0.8rem">← Return to Website</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  function msg(text, type) {
+    var el = document.getElementById('login-msg');
+    el.innerHTML = text
+      ? '<div class="alert alert-' + type + '" style="margin-bottom:14px">' + text + '</div>'
+      : '';
+  }
+
+  // Redirect if already logged in
+  fetch('/api/auth/verify', { credentials: 'same-origin' }).then(function(r) {
+    if (r.ok) window.location.href = '/admin/dashboard.html';
+  });
+
+  document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('login-btn');
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+    msg('', '');
+
+    var payload = {};
+    new FormData(e.target).forEach(function(v, k) { payload[k] = v; });
+
+    fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(payload)
+    })
+      .then(function(r) { return r.json().then(function(j) { return { ok: r.ok, j: j }; }); })
+      .then(function(res) {
+        if (res.ok) {
+          msg('&#10003; Login successful! Redirecting…', 'success');
+          setTimeout(function() { window.location.href = '/admin/dashboard.html'; }, 700);
+        } else {
+          msg(res.j.error || 'Login failed. Check your credentials.', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Sign In';
+        }
+      })
+      .catch(function() {
+        msg('Network error. Please try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      });
+  });
+}());
+</script>
+</body>
+</html>

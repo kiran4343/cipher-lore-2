@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Manager — PCL Admin</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo"><div class="sidebar-logo-icon">PCL</div><div><div class="sidebar-logo-text">Admin Panel</div><div class="sidebar-logo-sub">Paranormal Society</div></div></div>
+      <div class="admin-user-chip"><div class="admin-avatar" id="admin-avatar">A</div><div style="min-width:0"><div style="color:var(--text);font-weight:600" id="admin-name">Admin</div><div id="admin-email" style="font-size:0.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div></div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main</div>
+      <a href="/admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
+      <a href="/admin/analytics.html" class="nav-item"><span class="nav-icon">📈</span>Analytics</a>
+      <div class="nav-section-title">Content</div>
+      <a href="/admin/content.html#posts" class="nav-item active" id="nav-posts"><span class="nav-icon">📝</span>Blog Posts</a>
+      <a href="/admin/content.html#investigations" class="nav-item" id="nav-investigations"><span class="nav-icon">🔍</span>Investigations</a>
+      <a href="/admin/content.html#gallery" class="nav-item" id="nav-gallery"><span class="nav-icon">🖼️</span>Gallery</a>
+      <a href="/admin/content.html#team" class="nav-item" id="nav-team"><span class="nav-icon">👥</span>Team</a>
+      <a href="/admin/content.html#events" class="nav-item" id="nav-events"><span class="nav-icon">📅</span>Events</a>
+      <div class="nav-section-title">Site</div>
+      <a href="/admin/editor.html" class="nav-item"><span class="nav-icon">🎨</span>Page Editor</a>
+      <a href="/admin/messages.html" class="nav-item"><span class="nav-icon">✉️</span>Messages</a>
+      <a href="/admin/settings.html" class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank" class="nav-item"><span class="nav-icon">🌐</span>View Website</a>
+      <button id="sidebar-logout" class="nav-item" style="color:var(--red)"><span class="nav-icon">🚪</span>Logout</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Content Manager</div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary btn-sm" id="add-btn">+ Add New</button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="content-filters">
+        <button class="tab-btn active" data-section="posts">📝 Posts</button>
+        <button class="tab-btn" data-section="investigations">🔍 Investigations</button>
+        <button class="tab-btn" data-section="gallery">🖼️ Gallery</button>
+        <button class="tab-btn" data-section="team">👥 Team</button>
+        <button class="tab-btn" data-section="events">📅 Events</button>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <div class="card">
+        <div class="card-body" style="padding:0" id="content-table">
+          <div class="loading"><div class="spinner"></div><span style="margin-left:12px">Loading...</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="item-modal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Item</h3>
+      <button id="modal-close-btn" class="btn btn-secondary btn-sm">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button id="modal-cancel-btn" class="btn btn-secondary">Cancel</button>
+      <button id="save-btn" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Image Upload Modal -->
+<div class="modal-overlay" id="upload-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header"><h3>Upload Image</h3><button id="upload-close-btn" class="btn btn-secondary btn-sm">✕</button></div>
+    <div class="modal-body">
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="upload-input" accept="image/*">
+        <div style="font-size:2rem;margin-bottom:8px">📷</div>
+        <div style="color:var(--muted);font-size:0.85rem">Click or drag an image here</div>
+        <div style="color:var(--muted);font-size:0.75rem;margin-top:4px">Max 10MB • JPG, PNG, GIF, WebP</div>
+      </div>
+      <div id="upload-preview-wrap" style="display:none;text-align:center;margin-top:12px">
+        <img id="upload-preview" class="upload-preview" style="width:auto;height:100px;max-width:100%;border-radius:6px">
+        <div id="upload-url" style="font-size:0.8rem;color:var(--muted);margin-top:8px;word-break:break-all"></div>
+        <button id="upload-apply-btn" class="btn btn-primary btn-sm" style="margin-top:12px">Use This Image</button>
+      </div>
+      <div id="upload-msg" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/js/admin.js"></script>
+<script>
+var currentSection = 'posts';
+var editingId = null;
+var uploadTargetField = null;
+var uploadedUrl = null;
+
+var SECTIONS = {
+  posts:          { title: 'Blog Posts',    api: '/api/admin/posts',          key: 'posts' },
+  investigations: { title: 'Investigations',api: '/api/admin/investigations',  key: 'investigations' },
+  gallery:        { title: 'Gallery',       api: '/api/admin/gallery',         key: 'items' },
+  team:           { title: 'Team Members',  api: '/api/admin/team',            key: 'members' },
+  events:         { title: 'Events',        api: '/api/admin/events',          key: 'events' },
+};
+
+function switchSection(section) {
+  currentSection = section;
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.section === section);
+  });
+  document.getElementById('page-title').textContent = SECTIONS[section].title;
+  document.getElementById('alert-container').innerHTML = '';
+  loadContent();
+}
+
+function loadContent() {
+  var tbl = document.getElementById('content-table');
+  tbl.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  var s = SECTIONS[currentSection];
+  adminFetch(s.api).then(function(data) {
+    var items = data[s.key] || [];
+    tbl.innerHTML = renderTable(items);
+  }).catch(function(err) {
+    tbl.innerHTML = '<div style="padding:24px;color:var(--red)">Error: ' + err.message + '</div>';
+  });
+}
+
+function renderTable(items) {
+  if (!items.length) return '<div style="padding:40px;text-align:center;color:var(--muted)">No items yet. Click &quot;+ Add New&quot; to create one.</div>';
+  var sections = {
+    posts: function() {
+      return '<table><thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Views</th><th>Date</th><th>Actions</th></tr></thead><tbody>' +
+        items.map(function(p) {
+          return '<tr><td class="td-truncate" style="max-width:280px"><strong>' + p.title + '</strong></td><td>' + (p.category||'—') + '</td><td><span class="badge badge-' + p.status + '">' + p.status + '</span></td><td>' + (p.views||0) + '</td><td>' + formatDate(p.published_at||p.created_at) + '</td><td><button data-action="edit" data-id="' + p.id + '" class="btn btn-secondary btn-sm">Edit</button> <button data-action="delete" data-id="' + p.id + '" class="btn btn-danger btn-sm">Del</button></td></tr>';
+        }).join('') + '</tbody></table>';
+    },
+    investigations: function() {
+      return '<table><thead><tr><th>Title</th><th>Location</th><th>State</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead><tbody>' +
+        items.map(function(i) {
+          return '<tr><td class="td-truncate" style="max-width:200px"><strong>' + i.title + '</strong></td><td>' + (i.location||'—') + '</td><td>' + (i.state||'—') + '</td><td><span class="badge badge-' + i.status + '">' + i.status + '</span></td><td>' + (i.is_published ? '<span class="badge badge-published">Yes</span>' : '<span class="badge badge-draft">No</span>') + '</td><td><button data-action="edit" data-id="' + i.id + '" class="btn btn-secondary btn-sm">Edit</button> <button data-action="delete" data-id="' + i.id + '" class="btn btn-danger btn-sm">Del</button></td></tr>';
+        }).join('') + '</tbody></table>';
+    },
+    gallery: function() {
+      return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;padding:16px">' +
+        items.map(function(i) {
+          return '<div style="background:var(--bg3);border-radius:8px;overflow:hidden;border:1px solid var(--border2)"><img src="' + i.image_url + '" data-fallback-hide="1" style="width:100%;height:120px;object-fit:cover"><div style="padding:10px"><div style="font-size:0.78rem;font-weight:600;margin-bottom:4px">' + (i.title||'Untitled') + '</div><div style="font-size:0.7rem;color:var(--muted)">' + i.category + '</div><div style="display:flex;gap:6px;margin-top:8px"><button data-action="edit" data-id="' + i.id + '" class="btn btn-secondary btn-sm">Edit</button><button data-action="delete" data-id="' + i.id + '" class="btn btn-danger btn-sm">Del</button></div></div></div>';
+        }).join('') + '</div>';
+    },
+    team: function() {
+      return '<table><thead><tr><th>Name</th><th>Role</th><th>Active</th><th>Order</th><th>Actions</th></tr></thead><tbody>' +
+        items.map(function(m) {
+          return '<tr><td><strong>' + m.name + '</strong></td><td>' + (m.role||'—') + '</td><td>' + (m.is_active?'✓':'✗') + '</td><td>' + m.sort_order + '</td><td><button data-action="edit" data-id="' + m.id + '" class="btn btn-secondary btn-sm">Edit</button> <button data-action="delete" data-id="' + m.id + '" class="btn btn-danger btn-sm">Del</button></td></tr>';
+        }).join('') + '</tbody></table>';
+    },
+    events: function() {
+      return '<table><thead><tr><th>Title</th><th>Date</th><th>Location</th><th>Published</th><th>Actions</th></tr></thead><tbody>' +
+        items.map(function(e) {
+          return '<tr><td class="td-truncate" style="max-width:200px"><strong>' + e.title + '</strong></td><td>' + (e.event_date||'—') + '</td><td class="td-truncate">' + (e.location||'—') + '</td><td>' + (e.is_published?'<span class="badge badge-published">Yes</span>':'<span class="badge badge-draft">No</span>') + '</td><td><button data-action="edit" data-id="' + e.id + '" class="btn btn-secondary btn-sm">Edit</button> <button data-action="delete" data-id="' + e.id + '" class="btn btn-danger btn-sm">Del</button></td></tr>';
+        }).join('') + '</tbody></table>';
+    },
+  };
+  return sections[currentSection] ? sections[currentSection]() : '';
+}
+
+function getFormHtml(item) {
+  item = item || {};
+  var forms = {
+    posts: '<div class="form-group"><label class="form-label">Title *</label><input class="form-control" name="title" value="' + escHtml(item.title||'') + '" required></div>' +
+      '<div class="form-group"><label class="form-label">Excerpt</label><textarea class="form-control" name="excerpt" rows="2">' + escHtml(item.excerpt||'') + '</textarea></div>' +
+      '<div class="form-group"><label class="form-label">Content *</label><textarea class="form-control" name="content" rows="10">' + escHtml(item.content||'') + '</textarea></div>' +
+      '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">Category</label><select class="form-control" name="category"><option ' + sel(item.category,'General') + '>General</option><option ' + sel(item.category,'Research') + '>Research</option><option ' + sel(item.category,'Investigations') + '>Investigations</option><option ' + sel(item.category,'Technology') + '>Technology</option><option ' + sel(item.category,'Events') + '>Events</option></select></div>' +
+      '<div class="form-group"><label class="form-label">Status</label><select class="form-control" name="status"><option ' + sel(item.status,'draft') + '>draft</option><option ' + sel(item.status,'published') + '>published</option></select></div></div>' +
+      '<div class="form-group"><label class="form-label">Featured Image URL <button type="button" data-action="open-upload" data-field="featured_image" class="btn btn-secondary btn-sm" style="margin-left:8px">📷 Upload</button></label><input class="form-control" name="featured_image" id="featured_image" value="' + escHtml(item.featured_image||'') + '"></div>',
+
+    investigations: '<div class="form-group"><label class="form-label">Title *</label><input class="form-control" name="title" value="' + escHtml(item.title||'') + '" required></div>' +
+      '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">Location</label><input class="form-control" name="location" value="' + escHtml(item.location||'') + '"></div><div class="form-group"><label class="form-label">State</label><input class="form-control" name="state" value="' + escHtml(item.state||'') + '"></div></div>' +
+      '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">Date</label><input class="form-control" type="date" name="date" value="' + (item.date||'') + '"></div><div class="form-group"><label class="form-label">Status</label><select class="form-control" name="status"><option ' + sel(item.status,'ongoing') + '>ongoing</option><option ' + sel(item.status,'completed') + '>completed</option><option ' + sel(item.status,'archived') + '>archived</option></select></div></div>' +
+      '<div class="form-group"><label class="form-label">Short Description</label><textarea class="form-control" name="description" rows="3">' + escHtml(item.description||'') + '</textarea></div>' +
+      '<div class="form-group"><label class="form-label">Full Report</label><textarea class="form-control" name="full_report" rows="6">' + escHtml(item.full_report||'') + '</textarea></div>' +
+      '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">Published</label><select class="form-control" name="is_published"><option value="0" ' + (item.is_published?'':'selected') + '>No</option><option value="1" ' + (item.is_published?'selected':'') + '>Yes</option></select></div><div class="form-group"><label class="form-label">Evidence Types (comma sep)</label><input class="form-control" name="evidence_types" value="' + tryParseArr(item.evidence_types) + '"></div></div>',
+
+    gallery: '<div class="form-group"><label class="form-label">Image URL * <button type="button" data-action="open-upload" data-field="image_url" class="btn btn-secondary btn-sm" style="margin-left:8px">📷 Upload</button></label><input class="form-control" name="image_url" id="image_url" value="' + escHtml(item.image_url||'') + '" required></div>' +
+      '<div class="form-group"><label class="form-label">Title</label><input class="form-control" name="title" value="' + escHtml(item.title||'') + '"></div>' +
+      '<div class="form-group"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2">' + escHtml(item.description||'') + '</textarea></div>' +
+      '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">Category</label><input class="form-control" name="category" value="' + escHtml(item.category||'General') + '"></div><div class="form-group"><label class="form-label">Sort Order</label><input class="form-control" type="number" name="sort_order" value="' + (item.sort_order||0) + '"></div></div>' +
+      '<div class="form-group"><label class="form-label">Published</label><select class="form-control" name="is_published"><option value="1" ' + (item.is_published!==0?'selected':'') + '>Yes</option><option value="0" ' + (item.is_published===0?'selected':'') + '>No</option></select></div>',
+
+    team: '<div class="form-group"><label class="form-label">Name *</label><input class="form-control" name="name" value="' + escHtml(item.name||'') + '" required></div>' +
+      '<div class="form-group"><label class="form-label">Role / Title</label><input class="form-control" name="role" value="' + escHtml(item.role||'') + '"></div>' +
+      '<div class="form-group"><label class="form-label">Bio</label><textarea class="form-control" name="bio" rows="4">' + escHtml(item.bio||'') + '</textarea></div>' +
+      '<div class="form-group"><label class="form-label">Photo URL <button type="button" data-action="open-upload" data-field="image_url" class="btn btn-secondary btn-sm" style="margin-left:8px">📷 Upload</button></label><input class="form-control" name="image_url" id="image_url" value="' + escHtml(item.image_url||'') + '"></div>' +
+      '<div class="form-group"><label class="form-label">Specializations (comma sep)</label><input class="form-control" name="specializations" value="' + tryParseArr(item.specializations) + '"></div>' +
+      '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">Sort Order</label><input class="form-control" type="number" name="sort_order" value="' + (item.sort_order||0) + '"></div><div class="form-group"><label class="form-label">Joined Date</label><input class="form-control" type="date" name="joined_date" value="' + (item.joined_date||'') + '"></div></div>',
+
+    events: '<div class="form-group"><label class="form-label">Title *</label><input class="form-control" name="title" value="' + escHtml(item.title||'') + '" required></div>' +
+      '<div class="form-group"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="3">' + escHtml(item.description||'') + '</textarea></div>' +
+      '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">Date</label><input class="form-control" type="date" name="event_date" value="' + (item.event_date||'') + '"></div><div class="form-group"><label class="form-label">Time</label><input class="form-control" type="time" name="event_time" value="' + (item.event_time||'') + '"></div></div>' +
+      '<div class="form-group"><label class="form-label">Location</label><input class="form-control" name="location" value="' + escHtml(item.location||'') + '"></div>' +
+      '<div class="form-group"><label class="form-label">Image URL <button type="button" data-action="open-upload" data-field="image_url" class="btn btn-secondary btn-sm" style="margin-left:8px">📷 Upload</button></label><input class="form-control" name="image_url" id="image_url" value="' + escHtml(item.image_url||'') + '"></div>' +
+      '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">Registration Link</label><input class="form-control" name="registration_link" value="' + escHtml(item.registration_link||'') + '"></div><div class="form-group"><label class="form-label">Max Participants</label><input class="form-control" type="number" name="max_participants" value="' + (item.max_participants||'') + '"></div></div>' +
+      '<div class="form-group"><label class="form-label">Published</label><select class="form-control" name="is_published"><option value="0" ' + (item.is_published?'':'selected') + '>No</option><option value="1" ' + (item.is_published?'selected':'') + '>Yes</option></select></div>',
+  };
+  return forms[currentSection] || '';
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function sel(val, opt) { return val === opt ? 'value="'+opt+'" selected' : 'value="'+opt+'"'; }
+function tryParseArr(s) { try { var a = JSON.parse(s||'[]'); return Array.isArray(a) ? a.join(', ') : (s||''); } catch(e) { return s||''; } }
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Add ' + SECTIONS[currentSection].title.replace(/s$/,'');
+  document.getElementById('modal-body').innerHTML = '<form id="item-form">' + getFormHtml() + '</form>';
+  openModal('item-modal');
+}
+
+function editItem(id) {
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit Item';
+  document.getElementById('modal-body').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  openModal('item-modal');
+  var s = SECTIONS[currentSection];
+  adminFetch(s.api + '/' + id).then(function(data) {
+    var item = data[Object.keys(data)[0]];
+    document.getElementById('modal-body').innerHTML = '<form id="item-form">' + getFormHtml(item) + '</form>';
+  }).catch(function(err) {
+    document.getElementById('modal-body').innerHTML = '<div class="alert alert-error">' + err.message + '</div>';
+  });
+}
+
+function saveItem() {
+  var form = document.getElementById('item-form');
+  if (!form) return;
+  var fd = new FormData(form);
+  var body = {};
+  fd.forEach(function(v, k) {
+    if (k === 'evidence_types' || k === 'specializations') {
+      body[k] = v.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+    } else if (k === 'is_published' || k === 'sort_order' || k === 'max_participants') {
+      body[k] = v === '' ? null : Number(v);
+    } else {
+      body[k] = v;
+    }
+  });
+
+  var btn = document.getElementById('save-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  var s = SECTIONS[currentSection];
+  var method = editingId ? 'PUT' : 'POST';
+  var url = editingId ? (s.api + '/' + editingId) : s.api;
+  adminFetch(url, { method: method, body: JSON.stringify(body) }).then(function() {
+    closeModal('item-modal');
+    showAlert('alert-container', '✓ Saved successfully', 'success');
+    loadContent();
+  }).catch(function(err) {
+    showAlert('alert-container', 'Error: ' + err.message, 'error');
+  }).finally(function() {
+    btn.textContent = 'Save'; btn.disabled = false;
+  });
+}
+
+function deleteItem(id) {
+  if (!confirm('Delete this item? This cannot be undone.')) return;
+  adminFetch(SECTIONS[currentSection].api + '/' + id, { method: 'DELETE' }).then(function() {
+    showAlert('alert-container', '✓ Deleted', 'success');
+    loadContent();
+  }).catch(function(err) {
+    showAlert('alert-container', 'Error: ' + err.message, 'error');
+  });
+}
+
+function openUpload(fieldName) {
+  uploadTargetField = fieldName;
+  uploadedUrl = null;
+  document.getElementById('upload-preview-wrap').style.display = 'none';
+  document.getElementById('upload-msg').innerHTML = '';
+  document.getElementById('upload-input').value = '';
+  openModal('upload-modal');
+}
+
+function handleUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var msg = document.getElementById('upload-msg');
+  msg.innerHTML = '<div class="loading" style="padding:12px"><div class="spinner"></div><span style="margin-left:8px">Uploading...</span></div>';
+  uploadImage(file).then(function(url) {
+    uploadedUrl = url;
+    document.getElementById('upload-preview').src = url;
+    document.getElementById('upload-url').textContent = url;
+    document.getElementById('upload-preview-wrap').style.display = 'block';
+    msg.innerHTML = '';
+  }).catch(function(err) {
+    msg.innerHTML = '<div class="alert alert-error">' + err.message + '</div>';
+  });
+}
+
+function applyUploadedUrl() {
+  if (!uploadedUrl || !uploadTargetField) return;
+  var field = document.getElementById(uploadTargetField);
+  if (field) field.value = uploadedUrl;
+  closeModal('upload-modal');
+}
+
+function initSection() {
+  var hash = window.location.hash.replace('#', '') || 'posts';
+  if (SECTIONS[hash]) switchSection(hash);
+  else switchSection('posts');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  initAdmin();
+  initSection();
+
+  // Sidebar logout
+  document.getElementById('sidebar-logout').addEventListener('click', logout);
+
+  // Add New button
+  document.getElementById('add-btn').addEventListener('click', openAddModal);
+
+  // Tab buttons (event delegation on container)
+  document.querySelector('.content-filters').addEventListener('click', function(e) {
+    var btn = e.target.closest('.tab-btn');
+    if (btn && btn.dataset.section) switchSection(btn.dataset.section);
+  });
+
+  // Item modal buttons
+  document.getElementById('modal-close-btn').addEventListener('click', function() { closeModal('item-modal'); });
+  document.getElementById('modal-cancel-btn').addEventListener('click', function() { closeModal('item-modal'); });
+  document.getElementById('save-btn').addEventListener('click', saveItem);
+
+  // Upload modal buttons
+  document.getElementById('upload-close-btn').addEventListener('click', function() { closeModal('upload-modal'); });
+  document.getElementById('upload-input').addEventListener('change', function() { handleUpload(this); });
+  document.getElementById('upload-apply-btn').addEventListener('click', applyUploadedUrl);
+
+  // Table: Edit / Delete buttons (event delegation — buttons are dynamically created)
+  document.getElementById('content-table').addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var id = Number(btn.dataset.id);
+    if (btn.dataset.action === 'edit') editItem(id);
+    else if (btn.dataset.action === 'delete') deleteItem(id);
+  });
+
+  // Table: hide broken gallery images (event delegation using capture)
+  document.getElementById('content-table').addEventListener('error', function(e) {
+    if (e.target.tagName === 'IMG' && e.target.dataset.fallbackHide) {
+      e.target.style.display = 'none';
+    }
+  }, true);
+
+  // Modal body: Upload buttons inside dynamically rendered forms
+  document.getElementById('modal-body').addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-action="open-upload"]');
+    if (btn) openUpload(btn.dataset.field);
+  });
+});
+
+window.addEventListener('hashchange', initSection);
+</script>
+</body>
+</html>

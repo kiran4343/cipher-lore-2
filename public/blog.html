@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog & Research — Project Cipher Lore</title>
+  <meta name="description" content="Research articles, case studies, equipment guides and paranormal news from the Project Cipher Lore.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><a href="/" style="display:flex;align-items:center;gap:12px;text-decoration:none"><div class="nav-logo">PCL</div><div class="nav-name">Project Cipher Lore <span>Paranormal Research</span></div></a></div>
+  <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/investigations">Investigations</a></li><li><a href="/gallery">Gallery</a></li><li><a href="/blog" class="active">Blog</a></li><li><a href="/team">Team</a></li><li><a href="/events">Events</a></li><li><a href="/contact" class="nav-cta">Contact Us</a></li></ul>
+  <button class="nav-toggle">☰</button>
+</nav>
+<div class="mobile-menu"><ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/investigations">Investigations</a></li><li><a href="/gallery">Gallery</a></li><li><a href="/blog">Blog</a></li><li><a href="/team">Team</a></li><li><a href="/events">Events</a></li><li><a href="/contact">Contact</a></li></ul></div>
+
+<section class="page-hero">
+  <h1>Research & Articles</h1>
+  <p>In-depth research, case studies, equipment guides, and the latest paranormal news from India's leading investigation society.</p>
+  <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Blog</span></div>
+</section>
+
+<section class="section">
+  <div class="filter-tabs" id="blog-category-filters">
+    <button class="filter-tab active" onclick="loadBlogPosts(1,'')">All</button>
+    <button class="filter-tab" onclick="loadBlogPosts(1,'Research')">Research</button>
+    <button class="filter-tab" onclick="loadBlogPosts(1,'Investigations')">Investigations</button>
+    <button class="filter-tab" onclick="loadBlogPosts(1,'Technology')">Technology</button>
+    <button class="filter-tab" onclick="loadBlogPosts(1,'General')">General</button>
+  </div>
+  <div class="grid-3" id="blog-grid">
+    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+  </div>
+  <div id="blog-pagination" style="display:flex;gap:8px;justify-content:center;margin-top:48px"></div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="footer-logo"><div class="nav-logo">PCL</div><div class="nav-name">Project Cipher Lore <span>Paranormal Research</span></div></div><p class="footer-about">India's premier paranormal research organization since 2008.</p></div>
+    <div><h4 class="footer-heading">Navigation</h4><ul class="footer-links"><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/investigations">Investigations</a></li><li><a href="/gallery">Gallery</a></li></ul></div>
+    <div><h4 class="footer-heading">Resources</h4><ul class="footer-links"><li><a href="/events">Events</a></li><li><a href="/contact">Contact</a></li></ul></div>
+    <div class="footer-contact"><h4 class="footer-heading">Contact</h4><p>📧 <span data-setting="site_email">contact@projectcipherlore.com</span></p></div>
+  </div>
+  <div class="footer-bottom"><p data-setting="footer_text">© 2024 Project Cipher Lore. All rights reserved.</p></div>
+</footer>
+<script src="/js/tracker.js" defer></script>
+<script src="/js/main.js" defer></script>
+</body>
+</html>

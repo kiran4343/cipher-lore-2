@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — Project Cipher Lore</title>
+  <meta name="description" content="Contact the Project Cipher Lore to report paranormal experiences, request an investigation, or inquire about joining our team.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><a href="/" style="display:flex;align-items:center;gap:12px;text-decoration:none"><div class="nav-logo">PCL</div><div class="nav-name">Project Cipher Lore <span>Paranormal Research</span></div></a></div>
+  <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/investigations">Investigations</a></li><li><a href="/gallery">Gallery</a></li><li><a href="/blog">Blog</a></li><li><a href="/team">Team</a></li><li><a href="/events">Events</a></li><li><a href="/contact" class="nav-cta active">Contact Us</a></li></ul>
+  <button class="nav-toggle">☰</button>
+</nav>
+<div class="mobile-menu"><ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/investigations">Investigations</a></li><li><a href="/gallery">Gallery</a></li><li><a href="/blog">Blog</a></li><li><a href="/team">Team</a></li><li><a href="/events">Events</a></li><li><a href="/contact">Contact</a></li></ul></div>
+
+<section class="page-hero">
+  <h1>Get in Touch</h1>
+  <p>Report a paranormal experience, request an investigation, or enquire about joining IPS. Every message is reviewed by our team.</p>
+  <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Contact</span></div>
+</section>
+
+<section class="section">
+  <div class="contact-grid" style="max-width:1100px;margin:0 auto">
+    <div class="contact-info fade-in">
+      <div class="section-tag">Contact Information</div>
+      <h2>We'd Love to Hear From You</h2>
+      <p>Whether you've experienced something you can't explain, have a location you'd like investigated, or want to become part of our team — reach out.</p>
+      <div class="contact-detail">
+        <div class="contact-icon">📧</div>
+        <div><h4>Email</h4><p data-setting="site_email">contact@projectcipherlore.com</p></div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">📞</div>
+        <div><h4>Phone</h4><p data-setting="site_phone">+91 98765 43210</p></div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">📍</div>
+        <div><h4>Headquarters</h4><p data-setting="site_address">New Delhi, India</p></div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">🕐</div>
+        <div><h4>Response Time</h4><p>We respond to all enquiries within 48 hours</p></div>
+      </div>
+      <div style="margin-top:32px">
+        <h4 style="margin-bottom:16px;font-family:'Cinzel',serif">Follow Us</h4>
+        <div class="social-links">
+          <a href="#" class="social-link" data-setting-href="facebook_url">f</a>
+          <a href="#" class="social-link" data-setting-href="twitter_url">𝕏</a>
+          <a href="#" class="social-link" data-setting-href="instagram_url">📷</a>
+          <a href="#" class="social-link" data-setting-href="youtube_url">▶</a>
+        </div>
+      </div>
+    </div>
+    <div class="fade-in">
+      <div class="card" style="padding:40px">
+        <h3 style="margin-bottom:24px">Send Us a Message</h3>
+        <div id="form-message"></div>
+        <form id="contact-form" novalidate>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group">
+              <label class="form-label" for="name">Full Name *</label>
+              <input class="form-control" type="text" id="name" name="name" required placeholder="Your full name" minlength="2" maxlength="100">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">Email Address *</label>
+              <input class="form-control" type="email" id="email" name="email" required placeholder="your@email.com">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group">
+              <label class="form-label" for="phone">Phone (Optional)</label>
+              <input class="form-control" type="tel" id="phone" name="phone" placeholder="+91 99999 99999">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="subject">Subject *</label>
+              <input class="form-control" type="text" id="subject" name="subject" required placeholder="e.g. Investigation Request">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="message">Message *</label>
+            <textarea class="form-control" id="message" name="message" required rows="6" placeholder="Describe your experience or enquiry in detail..." minlength="10" maxlength="2000"></textarea>
+          </div>
+          <div style="margin-bottom:20px;padding:16px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:8px;font-size:0.85rem;color:#fbbf24">
+            ⚠️ For urgent safety concerns, please contact local authorities first. IPS investigates paranormal phenomena; we are not an emergency service.
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-header fade-in">
+    <div class="section-tag">FAQ</div>
+    <h2 class="section-title">Common Questions</h2>
+    <div class="section-line"></div>
+  </div>
+  <div style="max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:16px">
+    <div class="card fade-in" style="padding:24px">
+      <h3 style="font-size:1rem;margin-bottom:8px">Do you charge for investigations?</h3>
+      <p style="color:var(--muted);font-size:0.9rem">Private residential investigations are conducted free of charge as part of our mission. Commercial properties and events may have associated costs depending on scope.</p>
+    </div>
+    <div class="card fade-in" style="padding:24px">
+      <h3 style="font-size:1rem;margin-bottom:8px">How do I report a paranormal experience?</h3>
+      <p style="color:var(--muted);font-size:0.9rem">Use the contact form above or email us directly. Please describe the experience in as much detail as possible — date, time, location, what you saw/heard/felt, and any witnesses.</p>
+    </div>
+    <div class="card fade-in" style="padding:24px">
+      <h3 style="font-size:1rem;margin-bottom:8px">Can I join IPS as an investigator?</h3>
+      <p style="color:var(--muted);font-size:0.9rem">Yes! We regularly recruit new investigators. No prior experience is necessary, but a commitment to scientific methodology and ethical conduct is essential. Contact us expressing your interest.</p>
+    </div>
+    <div class="card fade-in" style="padding:24px">
+      <h3 style="font-size:1rem;margin-bottom:8px">How long does an investigation take?</h3>
+      <p style="color:var(--muted);font-size:0.9rem">Most investigations span one to three nights. Historical research and preparation begin weeks in advance, and post-investigation analysis can take several weeks for complex cases.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="footer-logo"><div class="nav-logo">PCL</div><div class="nav-name">Project Cipher Lore <span>Paranormal Research</span></div></div><p class="footer-about">India's premier paranormal research organization since 2008.</p></div>
+    <div><h4 class="footer-heading">Navigation</h4><ul class="footer-links"><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/investigations">Investigations</a></li><li><a href="/blog">Blog</a></li></ul></div>
+    <div><h4 class="footer-heading">Resources</h4><ul class="footer-links"><li><a href="/events">Events</a></li><li><a href="/team">Team</a></li></ul></div>
+    <div class="footer-contact"><h4 class="footer-heading">Contact</h4><p>📧 <span data-setting="site_email">contact@projectcipherlore.com</span></p><p>📍 <span data-setting="site_address">New Delhi, India</span></p></div>
+  </div>
+  <div class="footer-bottom"><p data-setting="footer_text">© 2024 Project Cipher Lore. All rights reserved.</p></div>
+</footer>
+<script src="/js/tracker.js" defer></script>
+<script src="/js/main.js" defer></script>
+</body>
+</html>
