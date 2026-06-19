@@ -58,11 +58,11 @@
       <div class="card" style="padding:40px">
         <h3 style="margin-bottom:24px">Send Us a Message</h3>
         <div id="form-message"></div>
-        <form id="contact-form" novalidate>
+        <form id="contact-form">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
             <div class="form-group">
               <label class="form-label" for="name">Full Name *</label>
-              <input class="form-control" type="text" id="name" name="name" required placeholder="Your full name" minlength="2" maxlength="100">
+              <input class="form-control" type="text" id="name" name="name" required placeholder="Your full name" minlength="2" maxlength="100" title="Name must be at least 2 characters">
             </div>
             <div class="form-group">
               <label class="form-label" for="email">Email Address *</label>
@@ -76,12 +76,12 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="subject">Subject *</label>
-              <input class="form-control" type="text" id="subject" name="subject" required placeholder="e.g. Investigation Request">
+              <input class="form-control" type="text" id="subject" name="subject" required placeholder="e.g. Investigation Request" minlength="2" maxlength="200">
             </div>
           </div>
           <div class="form-group">
             <label class="form-label" for="message">Message *</label>
-            <textarea class="form-control" id="message" name="message" required rows="6" placeholder="Describe your experience or enquiry in detail..." minlength="10" maxlength="2000"></textarea>
+            <textarea class="form-control" id="message" name="message" required rows="6" placeholder="Describe your experience or enquiry in detail..." minlength="10" maxlength="2000" title="Message must be at least 10 characters"></textarea>
           </div>
           <div style="margin-bottom:20px;padding:16px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:8px;font-size:0.85rem;color:#fbbf24">
             ⚠️ For urgent safety concerns, please contact local authorities first. IPS investigates paranormal phenomena; we are not an emergency service.

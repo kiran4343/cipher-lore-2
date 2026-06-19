@@ -103,11 +103,11 @@ router.get('/pages/:slug', (req, res) => {
 router.post('/contact',
   contactLimiter,
   [
-    body('name').trim().isLength({ min: 2, max: 100 }).escape(),
-    body('email').isEmail().normalizeEmail(),
-    body('phone').optional({ values: 'falsy' }).trim().escape().isLength({ max: 20 }),
-    body('subject').trim().isLength({ min: 2, max: 200 }).escape(),
-    body('message').trim().isLength({ min: 10, max: 2000 }).escape(),
+    body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Name must be at least 2 characters.').escape(),
+    body('email').isEmail().withMessage('Please enter a valid email address.').normalizeEmail(),
+    body('phone').optional({ values: 'falsy' }).trim().escape().isLength({ max: 20 }).withMessage('Phone number is too long.'),
+    body('subject').trim().isLength({ min: 2, max: 200 }).withMessage('Subject must be at least 2 characters.').escape(),
+    body('message').trim().isLength({ min: 10, max: 2000 }).withMessage('Message must be at least 10 characters.').escape(),
   ],
   (req, res) => {
     const errors = validationResult(req);
