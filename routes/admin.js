@@ -286,6 +286,41 @@ router.delete('/contacts/:id', wrap(async (req, res) => {
   res.json({ message: 'Deleted' });
 }));
 
+router.post('/contacts/:id/reply', [
+  body('subject').trim().notEmpty().withMessage('Subject is required'),
+  body('body').trim().notEmpty().withMessage('Message body is required'),
+], wrap(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+  const contact = await get('SELECT * FROM contacts WHERE id = ?', [req.params.id]);
+  if (!contact) return res.status(404).json({ error: 'Message not found' });
+
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    return res.status(503).json({ error: 'Email is not configured on this server. Set SMTP_HOST, SMTP_USER and SMTP_PASS environment variables.' });
+  }
+
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: parseInt(SMTP_PORT || '587'),
+    secure: parseInt(SMTP_PORT || '587') === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+
+  await transporter.sendMail({
+    from: SMTP_FROM || `"Paranormal Cipher" <${SMTP_USER}>`,
+    to: `"${contact.name}" <${contact.email}>`,
+    subject: req.body.subject,
+    text: req.body.body,
+    html: req.body.body.replace(/\n/g, '<br>'),
+  });
+
+  await run('UPDATE contacts SET is_read = 1 WHERE id = ?', [req.params.id]);
+  res.json({ message: 'Reply sent successfully' });
+}));
+
 // ─── PAGES (GrapesJS) ─────────────────────────────────────────
 const PAGE_FILES = {
   home: 'index.html', about: 'about.html', investigations: 'investigations.html',

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Messages — PCL Admin</title>
+  <title>Messages — PC Admin</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="/admin/css/admin.css">
@@ -69,9 +69,37 @@
   </div>
 </div>
 
+<!-- Reply Modal -->
+<div id="reply-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:32px;width:100%;max-width:560px;margin:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="margin:0">Reply via Email</h3>
+      <button onclick="closeReply()" style="background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div id="reply-alert" style="margin-bottom:12px"></div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">To</label>
+      <input class="form-control" id="reply-to" readonly style="opacity:0.6">
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Subject</label>
+      <input class="form-control" id="reply-subject">
+    </div>
+    <div class="form-group" style="margin-bottom:20px">
+      <label class="form-label">Message</label>
+      <textarea class="form-control" id="reply-body" rows="8" style="resize:vertical"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="closeReply()" class="btn btn-secondary">Cancel</button>
+      <button onclick="sendReply()" id="reply-send-btn" class="btn btn-primary">Send Reply</button>
+    </div>
+  </div>
+</div>
+
 <script src="/admin/js/admin.js"></script>
 <script>
 let messages = [];
+let replyTargetId = null;
 
 async function loadMessages() {
   try {
@@ -114,7 +142,7 @@ async function viewMessage(id) {
           <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">${new Date(m.created_at).toLocaleString('en-IN')}</div>
         </div>
         <div style="display:flex;gap:8px">
-          <a href="mailto:${m.email}?subject=Re: ${m.subject || 'Your enquiry'}" class="btn btn-primary btn-sm">Reply via Email</a>
+          <button onclick="openReply(${m.id})" class="btn btn-primary btn-sm">Reply via Email</button>
           <button onclick="deleteMessage(${m.id})" class="btn btn-danger btn-sm">Delete</button>
         </div>
       </div>
@@ -139,6 +167,63 @@ async function deleteMessage(id) {
     document.getElementById('message-detail').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)"><div style="text-align:center"><div style="font-size:3rem;margin-bottom:16px">✉️</div><p>Select a message to view it</p></div></div>';
   } catch (err) { showAlert('msg-alert', err.message, 'error'); }
 }
+
+function openReply(id) {
+  const m = messages.find(x => x.id === id);
+  if (!m) return;
+  replyTargetId = id;
+  document.getElementById('reply-to').value = `${m.name} <${m.email}>`;
+  document.getElementById('reply-subject').value = `Re: ${m.subject || 'Your enquiry'}`;
+  document.getElementById('reply-body').value = '';
+  document.getElementById('reply-alert').innerHTML = '';
+  const modal = document.getElementById('reply-modal');
+  modal.style.display = 'flex';
+  document.getElementById('reply-body').focus();
+}
+
+function closeReply() {
+  document.getElementById('reply-modal').style.display = 'none';
+  replyTargetId = null;
+}
+
+async function sendReply() {
+  const subject = document.getElementById('reply-subject').value.trim();
+  const body = document.getElementById('reply-body').value.trim();
+  const alertEl = document.getElementById('reply-alert');
+
+  if (!subject || !body) {
+    alertEl.innerHTML = '<div class="alert alert-error">Subject and message are required.</div>';
+    return;
+  }
+
+  const btn = document.getElementById('reply-send-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  alertEl.innerHTML = '';
+
+  try {
+    await adminFetch(`/api/admin/contacts/${replyTargetId}/reply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, body }),
+    });
+    alertEl.innerHTML = '<div class="alert alert-success">Reply sent successfully.</div>';
+    // Mark as read locally
+    const m = messages.find(x => x.id === replyTargetId);
+    if (m) { m.is_read = 1; renderList(); }
+    setTimeout(closeReply, 1200);
+  } catch (err) {
+    alertEl.innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Reply';
+  }
+}
+
+// Close modal on backdrop click
+document.getElementById('reply-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeReply();
+});
 
 document.addEventListener('DOMContentLoaded', () => { initAdmin(); loadMessages(); });
 </script>
