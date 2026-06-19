@@ -530,7 +530,7 @@ textarea.form-control { resize: vertical; min-height: 140px; }
   .inv-detail-header { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
-  .nav-links { display: none; }
+  .navbar .nav-links { display: none; }
   .nav-toggle { display: block; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: 1fr; }
