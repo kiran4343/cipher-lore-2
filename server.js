@@ -12,6 +12,8 @@ const { requireAuthPage } = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
+
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
