@@ -296,6 +296,17 @@ function seedDefaultData() {
   }
 }
 
+function ensureAdmin() {
+  const count = db.prepare('SELECT COUNT(*) as c FROM admins').get();
+  if (count.c > 0) return;
+  const bcrypt = require('bcryptjs');
+  const hash = bcrypt.hashSync('Sp3ctral#K9!xM@72', 12);
+  db.prepare("INSERT INTO admins (name, email, password_hash) VALUES (?, ?, ?)")
+    .run("Tanu'sCipherLore", 'admin@cipherlore.com', hash);
+  console.log('[db] Default admin account created');
+}
+
 initializeDatabase();
+ensureAdmin();
 
 module.exports = db;
