@@ -1,7 +1,7 @@
 {
-  "name": "indian-paranormal-society",
+  "name": "paranormal-cipher",
   "version": "1.0.0",
-  "description": "Project Cipher Lore - Official Website with Admin Panel",
+  "description": "Paranormal Cipher - Official Website with Admin Panel",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

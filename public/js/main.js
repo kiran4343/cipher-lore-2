@@ -212,7 +212,7 @@ async function loadPost() {
   try {
     const data = await apiFetch('/api/posts/' + slug);
     const p = data.post;
-    document.title = p.title + ' — IPS';
+    document.title = p.title + ' — Paranormal Cipher';
     document.querySelector('#post-title').textContent = p.title;
     document.querySelector('#post-meta').innerHTML = `<span class="badge badge-purple">${p.category}</span> <span style="color:var(--muted);font-size:0.85rem">${formatDate(p.published_at)}</span>`;
     document.querySelector('#post-featured-img').src = p.featured_image;

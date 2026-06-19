@@ -86,7 +86,7 @@ app.use((req, res) => {
 const { ready } = require('./database/database');
 ready.then(() => {
   app.listen(PORT, () => {
-    console.log(`\nProject Cipher Lore Server`);
+    console.log(`\nParanormal Cipher Server`);
     console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     console.log(`Website:    http://localhost:${PORT}`);
     console.log(`Admin:      http://localhost:${PORT}/admin`);

@@ -171,7 +171,7 @@ async function seedDefaultData() {
   if (Number(row.c) > 0) return;
 
   await batch([
-    ['site_name', 'Project Cipher Lore'],
+    ['site_name', 'Paranormal Cipher'],
     ['site_tagline', "Exploring the Unexplained — India's Premier Paranormal Research Organization"],
     ['site_email', 'contact@projectcipherlore.com'],
     ['site_phone', '+91 98765 43210'],
@@ -180,10 +180,10 @@ async function seedDefaultData() {
     ['twitter_url', 'https://twitter.com/ips_official'],
     ['instagram_url', 'https://instagram.com/indianparanormalsociety'],
     ['youtube_url', 'https://youtube.com/@indianparanormalsociety'],
-    ['footer_text', '© 2024 Project Cipher Lore. All rights reserved.'],
+    ['footer_text', '© 2024 Paranormal Cipher. All rights reserved.'],
     ['hero_title', "Exploring India's Unexplained Mysteries"],
     ['hero_subtitle', "India's premier paranormal research organization — documenting, investigating, and demystifying paranormal phenomena across the subcontinent since 2008."],
-    ['about_text', "The Project Cipher Lore (PCL) is a dedicated organization of researchers, scientists, and investigators committed to exploring and documenting paranormal phenomena across India."],
+    ['about_text', "The Paranormal Cipher (PCL) is a dedicated organization of researchers, scientists, and investigators committed to exploring and documenting paranormal phenomena across India."],
     ['cases_count', '500+'],
     ['members_count', '120+'],
     ['states_count', '28'],
@@ -205,7 +205,7 @@ async function seedDefaultData() {
   const teamRow = await get('SELECT COUNT(*) as c FROM team_members', []);
   if (Number(teamRow.c) === 0) {
     const tSql = 'INSERT INTO team_members (name, role, bio, image_url, specializations, sort_order, joined_date) VALUES (?,?,?,?,?,?,?)';
-    await run(tSql, ['Tanushree', 'Founder & Lead Investigator', 'Tanushree is the founder and lead investigator of Project Cipher Lore with over 20 years of experience.', '/images/team/tanushree.jpg', '["EVP Analysis","EMF Detection","Scientific Documentation"]', 1, '2008-01-01']);
+    await run(tSql, ['Tanushree', 'Founder & Lead Investigator', 'Tanushree is the founder and lead investigator of Paranormal Cipher with over 20 years of experience.', '/images/team/tanushree.jpg', '["EVP Analysis","EMF Detection","Scientific Documentation"]', 1, '2008-01-01']);
     await run(tSql, ['Priya Nair', 'Co-Founder & Psychic Medium', 'Priya Nair is a trained psychic medium with over 15 years of experience.', '/images/team/priya.jpg', '["Psychic Investigation","Spirit Communication"]', 2, '2008-01-01']);
     await run(tSql, ['Rahul Desai', 'Senior Tech Specialist', 'Rahul Desai manages all technological aspects of PCL investigations.', '/images/team/rahul.jpg', '["Custom Equipment","EVP Recording","Data Analysis"]', 3, '2010-03-15']);
     await run(tSql, ['Dr. Meera Pillai', 'Paranormal Psychologist', 'Dr. Meera Pillai brings psychological expertise to distinguish genuine paranormal experiences.', '/images/team/meera.jpg', '["Witness Interviews","Psychological Assessment"]', 4, '2012-06-20']);
@@ -227,7 +227,7 @@ async function seedDefaultData() {
     const eSql = 'INSERT INTO events (title, description, event_date, event_time, location, image_url, registration_link, max_participants, is_published) VALUES (?,?,?,?,?,?,?,?,?)';
     await run(eSql, ['Bhangarh Overnight Investigation', 'Join PCL investigators for an exclusive overnight investigation of Bhangarh Fort.', '2024-09-21', '21:00', 'Bhangarh Fort, Rajasthan', '/images/events/bhangarh-event.jpg', '#', 15, 1]);
     await run(eSql, ['Paranormal Investigation Workshop — Mumbai', 'A full-day workshop covering the fundamentals of paranormal investigation.', '2024-08-17', '10:00', 'Hotel Taj Mahal Palace, Mumbai', '/images/events/workshop-mumbai.jpg', '#', 30, 1]);
-    await run(eSql, ['PCL Annual Conference 2024', 'The 16th Annual Project Cipher Lore Conference.', '2024-10-05', '09:00', 'India International Centre, New Delhi', '/images/events/conference-2024.jpg', '#', 200, 1]);
+    await run(eSql, ['Paranormal Cipher Annual Conference 2024', 'The 16th Annual Paranormal Cipher Conference.', '2024-10-05', '09:00', 'India International Centre, New Delhi', '/images/events/conference-2024.jpg', '#', 200, 1]);
   }
 
   const galRow = await get('SELECT COUNT(*) as c FROM gallery', []);
@@ -244,7 +244,7 @@ async function seedDefaultData() {
       ['Delhi Cantonment Stakeout', 'Night surveillance setup at Delhi Cantonment', '/images/gallery/g8.jpg', 'Investigations', 8],
       ['Full Moon Investigation', 'Team conducting a full moon investigation in Rajasthan', '/images/gallery/g9.jpg', 'Investigations', 9],
       ['Spirit Photography Workshop', 'Participants learning spirit photography techniques', '/images/gallery/g10.jpg', 'Events', 10],
-      ['Annual Conference 2023', 'Members at the PCL Annual Conference in Hyderabad', '/images/gallery/g11.jpg', 'Events', 11],
+      ['Annual Conference 2023', 'Members at the Paranormal Cipher Annual Conference in Hyderabad', '/images/gallery/g11.jpg', 'Events', 11],
       ['Lab Analysis', 'Audio specialists analysing EVP recordings in the PCL lab', '/images/gallery/g12.jpg', 'Research', 12],
     ];
     for (const g of gItems) await run(gSql, g);
@@ -253,9 +253,9 @@ async function seedDefaultData() {
   const pgRow = await get('SELECT COUNT(*) as c FROM pages', []);
   if (Number(pgRow.c) === 0) {
     const pgSql = 'INSERT INTO pages (slug, title, content, meta_description) VALUES (?,?,?,?)';
-    await run(pgSql, ['home', 'Home', JSON.stringify({ sections: [] }), "Project Cipher Lore - Exploring India's Unexplained Mysteries"]);
-    await run(pgSql, ['about', 'About Us', '{}', "Learn about the Project Cipher Lore — our history, mission, and team."]);
-    await run(pgSql, ['contact', 'Contact Us', '{}', "Contact the Project Cipher Lore to report paranormal experiences."]);
+    await run(pgSql, ['home', 'Home', JSON.stringify({ sections: [] }), "Paranormal Cipher - Exploring India's Unexplained Mysteries"]);
+    await run(pgSql, ['about', 'About Us', '{}', "Learn about the Paranormal Cipher — our history, mission, and team."]);
+    await run(pgSql, ['contact', 'Contact Us', '{}', "Contact the Paranormal Cipher to report paranormal experiences."]);
   }
 }
 
