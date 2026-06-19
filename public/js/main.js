@@ -154,7 +154,7 @@ async function loadInvestigations() {
       const imgs = safeJson(inv.images, []);
       const img = imgs[0] || '/images/inv-default.jpg';
       return `<div class="card inv-card fade-in" data-category="${inv.state || 'All'}" onclick="window.location='/investigations/${inv.slug}'">
-        <img src="${img}" alt="${inv.title}" loading="lazy" onerror="this.src='/images/inv-default.jpg'">
+        <img src="${img}" alt="${inv.title}" loading="lazy" onerror="this.onerror=null;this.src='/images/inv-default.jpg'">
         <div class="inv-card-content">
           <div class="inv-status status-${inv.status}">● ${inv.status}</div>
           <div class="inv-location">${inv.location}${inv.state ? ', ' + inv.state : ''}</div>
@@ -183,7 +183,7 @@ async function loadBlogPosts(page = 1, category = '') {
     if (!data.posts.length) { grid.innerHTML = '<p style="color:var(--muted);text-align:center;grid-column:1/-1">No posts found.</p>'; return; }
     grid.innerHTML = data.posts.map(post => `
       <div class="card blog-card fade-in">
-        <img class="card-img" src="${post.featured_image}" alt="${post.title}" loading="lazy" onerror="this.src='/images/blog-default.jpg'">
+        <img class="card-img" src="${post.featured_image}" alt="${post.title}" loading="lazy" onerror="this.onerror=null;this.src='/images/blog-default.jpg'">
         <div class="card-body">
           <div class="blog-meta"><span class="blog-category">${post.category}</span><span>${formatDateShort(post.published_at)}</span></div>
           <h3 class="card-title">${post.title}</h3>
@@ -221,7 +221,7 @@ async function loadPost() {
     if (data.related?.length) {
       document.querySelector('#related-posts').innerHTML = data.related.map(r => `
         <a href="/blog/${r.slug}" class="card" style="text-decoration:none">
-          <img class="card-img" src="${r.featured_image}" alt="${r.title}" style="height:160px;object-fit:cover" onerror="this.src='/images/blog-default.jpg'">
+          <img class="card-img" src="${r.featured_image}" alt="${r.title}" style="height:160px;object-fit:cover" onerror="this.onerror=null;this.src='/images/blog-default.jpg'">
           <div class="card-body"><h4 class="card-title" style="font-size:0.95rem">${r.title}</h4></div>
         </a>`).join('');
     }
@@ -246,7 +246,7 @@ async function loadGallery() {
 
     grid.innerHTML = data.items.map(item => `
       <div class="gallery-item" data-category="${item.category}" data-lightbox data-src="${item.image_url}" data-caption="${item.title || ''}">
-        <img src="${item.image_url}" alt="${item.title || ''}" loading="lazy" onerror="this.src='/images/gallery-default.jpg'">
+        <img src="${item.image_url}" alt="${item.title || ''}" loading="lazy" onerror="this.onerror=null;this.src='/images/gallery-default.svg'">
         <div class="gallery-overlay"><span class="gallery-overlay-icon">🔍</span></div>
       </div>`).join('');
 
@@ -296,7 +296,7 @@ async function loadTeam() {
       const specs = safeJson(m.specializations, []);
       const social = safeJson(m.social_links, {});
       return `<div class="card team-card fade-in" style="padding:32px">
-        <img class="team-img" src="${m.image_url}" alt="${m.name}" onerror="this.src='/images/team-default.jpg'">
+        <img class="team-img" src="${m.image_url}" alt="${m.name}" onerror="this.onerror=null;this.src='/images/team-default.jpg'">
         <h3 class="team-name">${m.name}</h3>
         <p class="team-role">${m.role}</p>
         <p class="team-bio">${m.bio}</p>
@@ -354,7 +354,7 @@ async function loadHomeInvestigations() {
     grid.innerHTML = inv.map(inv => {
       const imgs = safeJson(inv.images, []);
       return `<div class="card inv-card fade-in" onclick="window.location='/investigations/${inv.slug}'" style="cursor:pointer">
-        <img src="${imgs[0] || '/images/inv-default.jpg'}" alt="${inv.title}" loading="lazy" onerror="this.src='/images/inv-default.jpg'" style="height:280px;object-fit:cover;width:100%">
+        <img src="${imgs[0] || '/images/inv-default.jpg'}" alt="${inv.title}" loading="lazy" onerror="this.onerror=null;this.src='/images/inv-default.jpg'" style="height:280px;object-fit:cover;width:100%">
         <div class="inv-card-content">
           <div class="inv-status status-${inv.status}">● ${inv.status}</div>
           <div class="inv-location">${inv.location}${inv.state ? ', ' + inv.state : ''}</div>
@@ -376,7 +376,7 @@ async function loadHomePosts() {
     const data = await apiFetch('/api/posts?limit=3');
     grid.innerHTML = data.posts.map(post => `
       <div class="card blog-card fade-in">
-        <img class="card-img" src="${post.featured_image}" alt="${post.title}" loading="lazy" onerror="this.src='/images/blog-default.jpg'" style="height:200px;object-fit:cover">
+        <img class="card-img" src="${post.featured_image}" alt="${post.title}" loading="lazy" onerror="this.onerror=null;this.src='/images/blog-default.jpg'" style="height:200px;object-fit:cover">
         <div class="card-body">
           <div class="blog-meta"><span class="blog-category">${post.category}</span><span>${formatDateShort(post.published_at)}</span></div>
           <h3 class="card-title" style="font-size:1rem">${post.title}</h3>
@@ -400,7 +400,7 @@ async function loadHomeTeam() {
     const data = await apiFetch('/api/team');
     grid.innerHTML = data.members.slice(0, 4).map(m => `
       <div class="card team-card fade-in" style="padding:28px;text-align:center">
-        <img class="team-img" src="${m.image_url}" alt="${m.name}" onerror="this.src='/images/team-default.jpg'">
+        <img class="team-img" src="${m.image_url}" alt="${m.name}" onerror="this.onerror=null;this.src='/images/team-default.jpg'">
         <h3 class="team-name">${m.name}</h3>
         <p class="team-role">${m.role}</p>
       </div>`).join('');

@@ -66,7 +66,7 @@ async function loadInvestigation() {
           </div>
         </div>
         ${inv.full_report ? `<div class="card" style="padding:40px;margin-bottom:40px"><h2 style="margin-bottom:24px">Full Investigation Report</h2><div class="post-content" style="max-width:none">${inv.full_report.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}</div></div>` : ''}
-        ${imgs.length > 1 ? `<h2 style="margin-bottom:24px">Investigation Photos</h2><div class="gallery-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:60px">${imgs.map(src => `<div class="gallery-item" data-lightbox data-src="${src}"><img src="${src}" alt="Investigation photo" loading="lazy" onerror="this.src='/images/inv-default.jpg'"><div class="gallery-overlay"><span class="gallery-overlay-icon">🔍</span></div></div>`).join('')}</div>` : ''}
+        ${imgs.length > 1 ? `<h2 style="margin-bottom:24px">Investigation Photos</h2><div class="gallery-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:60px">${imgs.map(src => `<div class="gallery-item" data-lightbox data-src="${src}"><img src="${src}" alt="Investigation photo" loading="lazy" onerror="this.onerror=null;this.src='/images/inv-default.jpg'"><div class="gallery-overlay"><span class="gallery-overlay-icon">🔍</span></div></div>`).join('')}</div>` : ''}
         <div style="text-align:center;margin-top:40px;padding-top:40px;border-top:1px solid var(--border2)">
           <a href="/investigations" class="btn btn-outline">← All Investigations</a>
           <a href="/contact" class="btn btn-primary" style="margin-left:12px">Report Similar Experience</a>
