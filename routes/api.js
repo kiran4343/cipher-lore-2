@@ -105,7 +105,7 @@ router.post('/contact',
   [
     body('name').trim().isLength({ min: 2, max: 100 }).escape(),
     body('email').isEmail().normalizeEmail(),
-    body('phone').optional().trim().escape().isLength({ max: 20 }),
+    body('phone').optional({ values: 'falsy' }).trim().escape().isLength({ max: 20 }),
     body('subject').trim().isLength({ min: 2, max: 200 }).escape(),
     body('message').trim().isLength({ min: 10, max: 2000 }).escape(),
   ],

@@ -89,10 +89,12 @@ if (contactForm) {
     btn.disabled = true; btn.textContent = 'Sending...';
     try {
       const data = Object.fromEntries(new FormData(contactForm));
+      if (!data.phone) delete data.phone; // send undefined not "" so optional() skips it
       const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
       const json = await res.json();
       msg.className = res.ok ? 'alert alert-success' : 'alert alert-error';
-      msg.textContent = json.message || json.error || 'An error occurred';
+      const errText = json.errors ? json.errors.map(function(e) { return e.msg; }).join('. ') : (json.message || json.error || 'An error occurred');
+      msg.textContent = errText;
       if (res.ok) contactForm.reset();
     } catch { msg.className = 'alert alert-error'; msg.textContent = 'Network error. Please try again.'; }
     btn.disabled = false; btn.textContent = 'Send Message';
