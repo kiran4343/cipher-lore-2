@@ -70,7 +70,8 @@ router.post('/', trackLimiter, async (req, res) => {
     const sessionId = clientSessionId || uuidv4();
     const ua = req.headers['user-agent'] || '';
     const { browser, os, device } = parseUserAgent(ua);
-    const ip = req.ip || '127.0.0.1';
+    const xff = req.headers['x-forwarded-for'];
+    const ip = xff ? xff.split(',')[0].trim() : (req.ip || '127.0.0.1');
 
     const localIps = ['127.0.0.1', '::1', '::ffff:127.0.0.1'];
 
