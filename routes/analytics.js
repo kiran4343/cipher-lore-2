@@ -88,4 +88,27 @@ router.post('/', trackLimiter, async (req, res) => {
   }
 });
 
+// POST /api/track/location  — receives precise GPS coords from the browser
+router.post('/location', trackLimiter, async (req, res) => {
+  try {
+    const { sessionId, lat, lon, accuracy } = req.body;
+    if (!sessionId || lat == null || lon == null) return res.status(400).json({ error: 'sessionId, lat, lon required' });
+
+    const latitude  = parseFloat(lat);
+    const longitude = parseFloat(lon);
+    if (isNaN(latitude) || isNaN(longitude)) return res.status(400).json({ error: 'invalid coords' });
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return res.status(400).json({ error: 'coords out of range' });
+
+    await run(
+      'UPDATE visitors SET latitude = ?, longitude = ?, gps_precise = 1 WHERE session_id = ?',
+      [latitude, longitude, sessionId]
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Location update error:', err);
+    res.status(500).json({ error: 'Failed' });
+  }
+});
+
 module.exports = router;

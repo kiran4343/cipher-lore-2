@@ -14,7 +14,7 @@
 
   async function track(duration) {
     try {
-      await fetch('/api/track', {
+      const r = await fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -25,13 +25,36 @@
           duration: duration || 0,
         }),
       });
-    } catch {}
+      return r.ok ? r.json() : null;
+    } catch { return null; }
+  }
+
+  async function sendGps(sid) {
+    if (!navigator.geolocation) return;
+    if (sessionStorage.getItem('ips_geo_sent')) return;
+    sessionStorage.setItem('ips_geo_sent', '1');
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        fetch('/api/track/location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: sid, lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+        }).catch(() => {});
+      },
+      () => { /* denied — silently ignore */ },
+      { timeout: 10000, maximumAge: 60000 }
+    );
+  }
+
+  async function trackAndGeo() {
+    const res = await track(0);
+    if (res && res.sessionId) sendGps(res.sessionId);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => track(0));
+    document.addEventListener('DOMContentLoaded', trackAndGeo);
   } else {
-    track(0);
+    trackAndGeo();
   }
 
   document.addEventListener('visibilitychange', () => {

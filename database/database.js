@@ -267,7 +267,14 @@ async function ensureAdmin() {
   console.log('[db] Default admin account created');
 }
 
+async function runMigrations() {
+  try {
+    await client.execute({ sql: 'ALTER TABLE visitors ADD COLUMN gps_precise INTEGER DEFAULT 0', args: [] });
+  } catch (_) { /* column already exists */ }
+}
+
 const ready = initializeDatabase()
+  .then(runMigrations)
   .then(seedDefaultData)
   .then(ensureAdmin)
   .catch(err => { console.error('[db] Init failed:', err); process.exit(1); });
