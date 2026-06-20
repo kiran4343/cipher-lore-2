@@ -268,9 +268,26 @@ async function ensureAdmin() {
 }
 
 async function runMigrations() {
-  try {
-    await client.execute({ sql: 'ALTER TABLE visitors ADD COLUMN gps_precise INTEGER DEFAULT 0', args: [] });
-  } catch (_) { /* column already exists */ }
+  const stmts = [
+    "ALTER TABLE visitors ADD COLUMN gps_precise INTEGER DEFAULT 0",
+    "ALTER TABLE visitors ADD COLUMN isp TEXT DEFAULT ''",
+    "ALTER TABLE visitors ADD COLUMN timezone TEXT DEFAULT ''",
+  ];
+  for (const sql of stmts) {
+    try { await client.execute({ sql, args: [] }); } catch (_) {}
+  }
+  await client.execute({
+    sql: `CREATE TABLE IF NOT EXISTS location_trail (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id TEXT NOT NULL,
+      latitude REAL NOT NULL,
+      longitude REAL NOT NULL,
+      accuracy REAL DEFAULT 0,
+      page TEXT DEFAULT '/',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    args: [],
+  });
 }
 
 const ready = initializeDatabase()

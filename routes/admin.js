@@ -102,6 +102,29 @@ router.get('/analytics', wrap(async (req, res) => {
   res.json({ daily, pageViews, countries, cities, devices, browsers, os, topPages, referrers, hourly, geoPoints, days });
 }));
 
+// ─── VISITOR LOCATIONS ────────────────────────────────────────
+router.get('/visitor-locations', wrap(async (req, res) => {
+  const { range = '7' } = req.query;
+  const days = Math.min(parseInt(range) || 7, 90);
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+
+  const [ispVisitors, gpsVisitors] = await Promise.all([
+    all('SELECT session_id, ip_address, country, city, region, isp, timezone, latitude, longitude, device_type, browser, first_page, created_at FROM visitors WHERE created_at >= ? ORDER BY created_at DESC LIMIT 100', [since]),
+    all("SELECT session_id, country, city, latitude, longitude, isp, first_page, created_at FROM visitors WHERE gps_precise = 1 AND created_at >= ? ORDER BY created_at DESC LIMIT 100", [since]),
+  ]);
+
+  let trails = [];
+  if (gpsVisitors.length) {
+    const ids = gpsVisitors.map(v => v.session_id);
+    trails = await all(
+      `SELECT session_id, latitude, longitude, accuracy, page, created_at FROM location_trail WHERE session_id IN (${ids.map(() => '?').join(',')}) ORDER BY created_at ASC`,
+      ids
+    );
+  }
+
+  res.json({ ispVisitors, gpsVisitors, trails });
+}));
+
 // ─── BLOG POSTS ───────────────────────────────────────────────
 router.get('/posts', wrap(async (req, res) => {
   const posts = await all('SELECT id, title, slug, category, status, views, published_at, created_at FROM blog_posts ORDER BY created_at DESC', []);

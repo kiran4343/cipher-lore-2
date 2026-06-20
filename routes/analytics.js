@@ -1,9 +1,40 @@
 const express = require('express');
-const geoip = require('geoip-lite');
 const { v4: uuidv4 } = require('uuid');
 const router = express.Router();
 const { get, run } = require('../database/database');
 const { trackLimiter } = require('../middleware/security');
+
+// Simple in-memory cache so we don't hammer ip-api.com for the same IP
+const geoCache = new Map();
+const GEO_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function lookupIp(ip) {
+  const cached = geoCache.get(ip);
+  if (cached && Date.now() - cached.ts < GEO_TTL) return cached.data;
+
+  try {
+    const res = await fetch(
+      `http://ip-api.com/json/${ip}?fields=status,country,countryCode,regionName,city,lat,lon,timezone,isp`,
+      { signal: AbortSignal.timeout(4000) }
+    );
+    const geo = await res.json();
+    if (geo.status !== 'success') return null;
+    const data = {
+      country: geo.country || 'Unknown',
+      countryCode: geo.countryCode || '',
+      city: geo.city || 'Unknown',
+      region: geo.regionName || '',
+      lat: geo.lat || 0,
+      lon: geo.lon || 0,
+      timezone: geo.timezone || '',
+      isp: geo.isp || '',
+    };
+    geoCache.set(ip, { ts: Date.now(), data });
+    return data;
+  } catch {
+    return null;
+  }
+}
 
 function parseUserAgent(ua) {
   if (!ua) return { browser: 'Unknown', os: 'Unknown', device: 'desktop' };
@@ -41,30 +72,25 @@ router.post('/', trackLimiter, async (req, res) => {
     const { browser, os, device } = parseUserAgent(ua);
     const ip = req.ip || '127.0.0.1';
 
-    const skipIps = ['127.0.0.1', '::1', '::ffff:127.0.0.1'];
+    const localIps = ['127.0.0.1', '::1', '::ffff:127.0.0.1'];
 
     let existingVisitor = await get('SELECT id FROM visitors WHERE session_id = ?', [sessionId]);
 
     if (!existingVisitor) {
-      let country = 'Unknown', countryCode = '', city = 'Unknown', region = '', lat = 0, lon = 0;
+      let country = 'Unknown', countryCode = '', city = 'Unknown', region = '', lat = 0, lon = 0, isp = '', timezone = '';
 
-      if (!skipIps.includes(ip)) {
-        const geo = geoip.lookup(ip);
+      if (!localIps.includes(ip)) {
+        const geo = await lookupIp(ip);
         if (geo) {
-          country = geo.country === 'IN' ? 'India' : (geo.country || 'Unknown');
-          countryCode = geo.country || '';
-          city = geo.city || 'Unknown';
-          region = geo.region || '';
-          lat = geo.ll ? geo.ll[0] : 0;
-          lon = geo.ll ? geo.ll[1] : 0;
+          ({ country, countryCode, city, region, lat, lon, isp, timezone } = geo);
         }
       } else {
-        country = 'India (Local)'; countryCode = 'IN'; city = 'Localhost';
+        country = 'India (Local)'; countryCode = 'IN'; city = 'Localhost'; isp = 'Local'; timezone = 'Asia/Kolkata';
       }
 
       const result = await run(
-        'INSERT INTO visitors (session_id, ip_address, country, country_code, city, region, latitude, longitude, device_type, browser, os, user_agent, referrer, first_page) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        [sessionId, ip, country, countryCode, city, region, lat, lon, device, browser, os, ua.slice(0, 300), referrer || '', page]
+        'INSERT INTO visitors (session_id, ip_address, country, country_code, city, region, latitude, longitude, isp, timezone, device_type, browser, os, user_agent, referrer, first_page) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        [sessionId, ip, country, countryCode, city, region, lat, lon, isp, timezone, device, browser, os, ua.slice(0, 300), referrer || '', page]
       );
       existingVisitor = { id: result.lastInsertRowid };
     }
@@ -88,10 +114,10 @@ router.post('/', trackLimiter, async (req, res) => {
   }
 });
 
-// POST /api/track/location  — receives precise GPS coords from the browser
+// POST /api/track/location — precise GPS from browser; logs a trail point on every page
 router.post('/location', trackLimiter, async (req, res) => {
   try {
-    const { sessionId, lat, lon, accuracy } = req.body;
+    const { sessionId, lat, lon, accuracy, page } = req.body;
     if (!sessionId || lat == null || lon == null) return res.status(400).json({ error: 'sessionId, lat, lon required' });
 
     const latitude  = parseFloat(lat);
@@ -102,6 +128,11 @@ router.post('/location', trackLimiter, async (req, res) => {
     await run(
       'UPDATE visitors SET latitude = ?, longitude = ?, gps_precise = 1 WHERE session_id = ?',
       [latitude, longitude, sessionId]
+    );
+
+    await run(
+      'INSERT INTO location_trail (session_id, latitude, longitude, accuracy, page) VALUES (?,?,?,?,?)',
+      [sessionId, latitude, longitude, parseFloat(accuracy) || 0, page || '/']
     );
 
     res.json({ ok: true });

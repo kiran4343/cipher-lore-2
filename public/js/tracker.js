@@ -29,26 +29,34 @@
     } catch { return null; }
   }
 
-  async function sendGps(sid) {
+  // Send GPS on every page — browser remembers permission so no repeat popups.
+  // Each call logs a trail point on the server.
+  function sendGps(sid) {
     if (!navigator.geolocation) return;
-    if (sessionStorage.getItem('ips_geo_sent')) return;
-    sessionStorage.setItem('ips_geo_sent', '1');
+    const page = window.location.pathname;
     navigator.geolocation.getCurrentPosition(
       pos => {
         fetch('/api/track/location', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId: sid, lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+          body: JSON.stringify({
+            sessionId: sid,
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            page,
+          }),
         }).catch(() => {});
       },
-      () => { /* denied — silently ignore */ },
-      { timeout: 10000, maximumAge: 60000 }
+      () => {},
+      { timeout: 10000, maximumAge: 30000 }
     );
   }
 
   async function trackAndGeo() {
     const res = await track(0);
-    if (res && res.sessionId) sendGps(res.sessionId);
+    const sid = (res && res.sessionId) ? res.sessionId : sessionId;
+    sendGps(sid);
   }
 
   if (document.readyState === 'loading') {

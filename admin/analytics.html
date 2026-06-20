@@ -108,6 +108,52 @@
         <div class="card-header"><h3>Traffic Sources & Referrers</h3></div>
         <div class="card-body" style="padding:0" id="referrers-list"><div class="loading"><div class="spinner"></div></div></div>
       </div>
+
+      <!-- Visitor Locations -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <h3>Visitor Locations</h3>
+          <div style="display:flex;gap:6px">
+            <button id="loc-tab-isp" onclick="switchLocTab('isp')" style="padding:5px 14px;border-radius:6px;border:1px solid var(--purple);background:var(--purple);color:#fff;cursor:pointer;font-size:0.78rem;font-weight:600">ISP Location</button>
+            <button id="loc-tab-gps" onclick="switchLocTab('gps')" style="padding:5px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:0.78rem;font-weight:600">GPS Tracking</button>
+          </div>
+        </div>
+
+        <!-- ISP tab -->
+        <div id="loc-isp-tab">
+          <div style="overflow-x:auto">
+            <table id="isp-table" style="min-width:700px">
+              <thead><tr>
+                <th>Time</th><th>Country / City</th><th>ISP / Provider</th><th>Timezone</th><th>Device</th><th>Entry Page</th>
+              </tr></thead>
+              <tbody id="isp-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- GPS tab -->
+        <div id="loc-gps-tab" style="display:none">
+          <div id="gps-empty" style="display:none;padding:32px;text-align:center;color:var(--muted)">
+            No GPS-precise visitors yet. Visitors who click "Allow" on the location prompt will appear here.
+          </div>
+          <div style="overflow-x:auto">
+            <table id="gps-table" style="min-width:700px">
+              <thead><tr>
+                <th>Time</th><th>Country / City</th><th>GPS Coordinates</th><th>Trail Points</th><th>Entry Page</th>
+              </tr></thead>
+              <tbody id="gps-tbody"></tbody>
+            </table>
+          </div>
+          <!-- Trail detail panel -->
+          <div id="trail-panel" style="display:none;border-top:1px solid var(--border2);padding:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <strong id="trail-title" style="font-size:0.85rem">Location Trail</strong>
+              <button onclick="document.getElementById('trail-panel').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem">✕</button>
+            </div>
+            <div id="trail-body" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -122,6 +168,7 @@ function setRange(days, btn) {
   btn.classList.add('active');
   currentDays = days;
   loadAnalytics(days);
+  loadVisitorLocations(days);
 }
 
 const COLORS = ['#7c3aed','#10b981','#f59e0b','#3b82f6','#ef4444','#8b5cf6','#06b6d4','#84cc16','#f97316','#ec4899'];
@@ -225,9 +272,124 @@ async function loadAnalytics(days = 7) {
   } catch (err) { console.error(err); }
 }
 
+let locData = { ispVisitors: [], gpsVisitors: [], trails: [] };
+let currentLocTab = 'isp';
+
+function switchLocTab(tab) {
+  currentLocTab = tab;
+  document.getElementById('loc-isp-tab').style.display = tab === 'isp' ? '' : 'none';
+  document.getElementById('loc-gps-tab').style.display = tab === 'gps' ? '' : 'none';
+  document.getElementById('trail-panel').style.display = 'none';
+  document.getElementById('loc-tab-isp').style.background = tab === 'isp' ? 'var(--purple)' : 'transparent';
+  document.getElementById('loc-tab-isp').style.color = tab === 'isp' ? '#fff' : 'var(--muted)';
+  document.getElementById('loc-tab-isp').style.borderColor = tab === 'isp' ? 'var(--purple)' : 'var(--border)';
+  document.getElementById('loc-tab-gps').style.background = tab === 'gps' ? 'var(--purple)' : 'transparent';
+  document.getElementById('loc-tab-gps').style.color = tab === 'gps' ? '#fff' : 'var(--muted)';
+  document.getElementById('loc-tab-gps').style.borderColor = tab === 'gps' ? 'var(--purple)' : 'var(--border)';
+}
+
+function fmtTime(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function renderIspTable(visitors) {
+  const tbody = document.getElementById('isp-tbody');
+  if (!visitors.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No visitor data for this period</td></tr>';
+    return;
+  }
+  tbody.innerHTML = visitors.map(v => `
+    <tr>
+      <td style="font-size:0.78rem;color:var(--muted);white-space:nowrap">${fmtTime(v.created_at)}</td>
+      <td>
+        <div style="font-size:0.82rem;font-weight:500">${v.country || '—'}</div>
+        <div style="font-size:0.72rem;color:var(--muted)">${[v.city, v.region].filter(Boolean).join(', ') || '—'}</div>
+      </td>
+      <td>
+        <div style="font-size:0.82rem">${v.isp || '—'}</div>
+        <div style="font-size:0.72rem;color:var(--muted)">${v.ip_address || ''}</div>
+      </td>
+      <td style="font-size:0.78rem;color:var(--muted)">${v.timezone || '—'}</td>
+      <td style="font-size:0.78rem">${v.device_type || '—'} / ${v.browser || '—'}</td>
+      <td style="font-size:0.78rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.first_page || '/'}</td>
+    </tr>`).join('');
+}
+
+function showTrail(sessionId, label) {
+  const points = locData.trails.filter(t => t.session_id === sessionId);
+  const panel = document.getElementById('trail-panel');
+  const body = document.getElementById('trail-body');
+  document.getElementById('trail-title').textContent = `Location Trail — ${label}`;
+
+  if (!points.length) {
+    body.innerHTML = '<div style="color:var(--muted);font-size:0.82rem">No trail points recorded for this visitor yet.</div>';
+  } else {
+    body.innerHTML = points.map((p, i) => `
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 12px;background:var(--bg3);border-radius:8px">
+        <div style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#fff">${i + 1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.82rem;font-weight:500;margin-bottom:2px">${p.page || '/'}</div>
+          <div style="font-size:0.75rem;color:var(--muted)">
+            ${p.latitude.toFixed(6)}, ${p.longitude.toFixed(6)}
+            ${p.accuracy ? ` · ±${Math.round(p.accuracy)}m` : ''}
+          </div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:2px">${fmtTime(p.created_at)}</div>
+        </div>
+        <a href="https://www.google.com/maps?q=${p.latitude},${p.longitude}" target="_blank"
+           style="flex-shrink:0;font-size:0.72rem;color:var(--purple-l);white-space:nowrap">Map ↗</a>
+      </div>`).join('');
+  }
+  panel.style.display = '';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderGpsTable(visitors, trails) {
+  const tbody = document.getElementById('gps-tbody');
+  const empty = document.getElementById('gps-empty');
+  if (!visitors.length) {
+    empty.style.display = '';
+    tbody.closest('div').style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.closest('div').style.display = '';
+
+  const trailCount = {};
+  trails.forEach(t => { trailCount[t.session_id] = (trailCount[t.session_id] || 0) + 1; });
+
+  tbody.innerHTML = visitors.map((v, i) => `
+    <tr style="cursor:pointer" onclick="showTrail('${v.session_id}', '${(v.country || '').replace(/'/g, '')} · ${(v.city || '').replace(/'/g, '')}')">
+      <td style="font-size:0.78rem;color:var(--muted);white-space:nowrap">${fmtTime(v.created_at)}</td>
+      <td>
+        <div style="font-size:0.82rem;font-weight:500">${v.country || '—'}</div>
+        <div style="font-size:0.72rem;color:var(--muted)">${v.city || '—'}</div>
+      </td>
+      <td>
+        <div style="font-size:0.82rem;font-family:monospace;color:var(--emerald)">${Number(v.latitude).toFixed(6)}, ${Number(v.longitude).toFixed(6)}</div>
+        <a href="https://www.google.com/maps?q=${v.latitude},${v.longitude}" target="_blank" style="font-size:0.7rem" onclick="event.stopPropagation()">Open in Maps ↗</a>
+      </td>
+      <td>
+        <span style="font-size:0.82rem;font-weight:600;color:var(--purple-l)">${trailCount[v.session_id] || 0}</span>
+        <span style="font-size:0.72rem;color:var(--muted)"> points · click row to view</span>
+      </td>
+      <td style="font-size:0.78rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.first_page || '/'}</td>
+    </tr>`).join('');
+}
+
+async function loadVisitorLocations(days) {
+  try {
+    const data = await adminFetch(`/api/admin/visitor-locations?range=${days}`);
+    locData = data;
+    renderIspTable(data.ispVisitors);
+    renderGpsTable(data.gpsVisitors, data.trails);
+  } catch (err) { console.error('Location load error:', err); }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initAdmin();
   loadAnalytics(7);
+  loadVisitorLocations(7);
 });
 </script>
 </body>
