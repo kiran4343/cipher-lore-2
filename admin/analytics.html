@@ -41,8 +41,8 @@
       <div class="topbar-title">Analytics & Visitor Insights</div>
       <div class="topbar-actions">
         <div class="range-btns">
-          <button class="range-btn active" data-days="7" onclick="setRange(7,this)">7d</button>
-          <button class="range-btn" data-days="30" onclick="setRange(30,this)">30d</button>
+          <button class="range-btn" data-days="7" onclick="setRange(7,this)">7d</button>
+          <button class="range-btn active" data-days="30" onclick="setRange(30,this)">30d</button>
           <button class="range-btn" data-days="90" onclick="setRange(90,this)">90d</button>
           <button class="range-btn" data-days="365" onclick="setRange(365,this)">1y</button>
         </div>
@@ -161,12 +161,13 @@
 <script src="/admin/js/admin.js"></script>
 <script>
 let trendChart, hourlyChart, deviceChart, browserChart, osChart;
-let currentDays = 7;
+let currentDays = 30;
 
 function setRange(days, btn) {
   document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentDays = days;
+  localStorage.setItem('cl_analytics_range', days);
   loadAnalytics(days);
   loadVisitorLocations(days);
 }
@@ -388,8 +389,15 @@ async function loadVisitorLocations(days) {
 
 document.addEventListener('DOMContentLoaded', () => {
   initAdmin();
-  loadAnalytics(7);
-  loadVisitorLocations(7);
+  const savedDays = parseInt(localStorage.getItem('cl_analytics_range')) || 30;
+  const activeBtn = document.querySelector(`.range-btn[data-days="${savedDays}"]`);
+  if (activeBtn) {
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    activeBtn.classList.add('active');
+    currentDays = savedDays;
+  }
+  loadAnalytics(savedDays);
+  loadVisitorLocations(savedDays);
 });
 </script>
 </body>
